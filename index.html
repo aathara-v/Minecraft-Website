@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CraftOracle — Your AI-powered Minecraft companion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Syne:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#05050e;--surface:#09091a;--card:#0d0d20;--card2:#111128;
+  --border:#16163a;--borderhi:#2a1a70;
+  --pu:#7c3aed;--pu2:#9333ea;--pu3:#a855f7;--pu4:#c084fc;
+  --puglow:rgba(168,85,247,.3);--pusub:rgba(124,58,237,.12);
+  --cy:#0891b2;--cy2:#06b6d4;--cy3:#22d3ee;--cy4:#67e8f9;
+  --cyglow:rgba(34,211,238,.22);--cysub:rgba(6,182,212,.1);
+  --tx:#e2e8f0;--txm:#8892a4;--txd:#2d3a4a;
+  --ok:#10b981;--err:#ef4444;
+  --fd:'Cinzel Decorative',serif;--fb:'Syne',sans-serif;
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);min-height:100vh;overflow-x:hidden;cursor:none;user-select:none}
+
+/* ─── SELECTABLE CONTENT ─── */
+.rc-seed,.rc-name,.rc-desc,.rc-spawn,.rc-by,.cmd-code,.mod-stats span,.rc-tags .tag,.rc-icon{
+  user-select:text!important;
+}
+.cmd-code,.rc-seed,.rc-desc,.rc-name,.rc-spawn{cursor:text;}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:linear-gradient(var(--pu3),var(--cy3));border-radius:3px}
+
+/* ─── NOISE + SCANLINES overlay ─── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:9998;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-size:180px 180px;opacity:.028;mix-blend-mode:overlay;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:9997;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.04) 2px,rgba(0,0,0,.04) 4px);
+}
+
+/* ─── CURSOR SYSTEM ─── */
+#cur-dot{position:fixed;width:8px;height:8px;border-radius:50%;background:var(--cy3);pointer-events:none;z-index:99999;transform:translate(-50%,-50%);mix-blend-mode:screen;transition:transform .08s,background .2s;box-shadow:0 0 12px var(--cy3)}
+#cur-ring{position:fixed;width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(168,85,247,.55);pointer-events:none;z-index:99998;transform:translate(-50%,-50%);transition:width .3s,height .3s,border-color .3s}
+.trail-dot{position:fixed;border-radius:50%;pointer-events:none;z-index:99997;transform:translate(-50%,-50%);mix-blend-mode:screen}
+#spotlight{position:fixed;inset:0;pointer-events:none;z-index:1;background:radial-gradient(circle 320px at 50% 50%,rgba(124,58,237,.055) 0%,transparent 70%);transition:background .05s}
+#hex-canvas{position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.55}
+#star-canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+.ripple{position:fixed;border-radius:50%;pointer-events:none;z-index:99996;border:2px solid var(--cy3);transform:translate(-50%,-50%) scale(0);animation:rippleOut .7s ease-out forwards}
+@keyframes rippleOut{to{transform:translate(-50%,-50%) scale(1);opacity:0;width:100px;height:100px}}
+#click-ripple-container{position:fixed;inset:0;pointer-events:none;z-index:99996}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;height:64px;padding:0 2.5rem;display:flex;align-items:center;justify-content:space-between;background:rgba(5,5,14,.8);backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);border-bottom:1px solid rgba(124,58,237,.15)}
+.logo{display:flex;align-items:center;gap:.7rem;text-decoration:none;cursor:none}
+.logo-svg{width:36px;height:36px;transition:filter .4s;filter:drop-shadow(0 0 8px rgba(168,85,247,.6))}
+.logo:hover .logo-svg{filter:drop-shadow(0 0 18px rgba(34,211,238,.8))}
+.logo-txt{font-family:var(--fd);font-size:1.15rem;font-weight:700;background:linear-gradient(120deg,var(--pu4),var(--cy3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:.04em}
+.nav-pills{display:flex;gap:.25rem;background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;padding:.3rem}
+.nav-pill{background:transparent;border:none;color:var(--txm);padding:.42rem 1.1rem;border-radius:7px;font-family:var(--fb);font-size:.83rem;font-weight:600;cursor:none;transition:all .25s;letter-spacing:.03em;position:relative;overflow:hidden}
+.nav-pill::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(168,85,247,.2),transparent 70%);opacity:0;transition:opacity .3s}
+.nav-pill:hover::after{opacity:1}
+.nav-pill:hover{color:var(--tx)}
+.nav-pill.active{background:linear-gradient(135deg,rgba(124,58,237,.3),rgba(6,182,212,.15));color:var(--tx);border:1px solid rgba(168,85,247,.3)}
+.nav-r{display:flex;align-items:center;gap:1rem}
+.status-pill{display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--txm);background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.18);padding:.3rem .75rem;border-radius:100px}
+.s-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);box-shadow:0 0 7px var(--ok);animation:sdot 2.2s infinite}
+@keyframes sdot{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-key{background:transparent;border:1px solid var(--borderhi);color:var(--pu3);padding:.38rem 1rem;border-radius:8px;cursor:none;font-family:var(--fb);font-size:.8rem;font-weight:600;transition:all .25s;letter-spacing:.03em}
+.btn-key:hover{background:var(--pusub);border-color:var(--pu3);box-shadow:0 0 18px var(--puglow)}
+
+/* ─── MODAL ─── */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(16px);z-index:1000;align-items:center;justify-content:center}
+.modal-ov.open{display:flex}
+.modal{background:var(--surface);border:1px solid var(--borderhi);border-radius:22px;padding:2rem;width:min(90%,460px);box-shadow:0 0 80px rgba(124,58,237,.22),0 0 140px rgba(6,182,212,.08);animation:mIn .32s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes mIn{from{opacity:0;transform:scale(.88) translateY(24px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.m-title{font-family:'Cinzel',serif;font-size:1.1rem;color:var(--pu3);margin-bottom:.35rem}
+.m-sub{font-size:.82rem;color:var(--txm);margin-bottom:1.5rem;line-height:1.55}
+
+/* ─── HERO ─── */
+.hero{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:7rem 2rem 5rem;text-align:center;overflow:hidden}
+.hero-content{max-width:860px;position:relative;z-index:2}
+.hero-eye-wrap{width:150px;height:150px;margin:0 auto 2.5rem;position:relative;cursor:none}
+.eye-glow-ring{position:absolute;inset:-20px;border-radius:50%;background:radial-gradient(circle,rgba(124,58,237,.12) 0%,transparent 70%);animation:eyePulse 3s ease-in-out infinite}
+@keyframes eyePulse{0%,100%{transform:scale(1);opacity:.8}50%{transform:scale(1.15);opacity:1}}
+.eye-orbit{position:absolute;inset:-8px;border-radius:50%;border:1px dashed rgba(168,85,247,.25);animation:orbit 12s linear infinite}
+.eye-orbit2{position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(34,211,238,.15);animation:orbit 20s linear infinite reverse}
+@keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.hero-eye-svg{width:150px;height:150px;animation:heroFloat 5s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(168,85,247,.45)) drop-shadow(0 0 60px rgba(34,211,238,.18));position:relative;z-index:1;transition:transform .1s}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(124,58,237,.1);border:1px solid rgba(168,85,247,.22);color:var(--pu3);padding:.35rem 1rem;border-radius:100px;font-size:.76rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:1.5rem;animation:fdUp .8s ease .1s both}
+.badge-blink{width:5px;height:5px;border-radius:50%;background:var(--cy3);box-shadow:0 0 8px var(--cy3);animation:sdot 2s infinite}
+.hero-title{font-family:var(--fd);font-size:clamp(3.2rem,8.5vw,7rem);font-weight:900;line-height:.92;margin-bottom:1.2rem;animation:fdUp .8s ease .2s both;letter-spacing:-.01em;position:relative}
+.ht-craft{display:block;color:var(--tx)}
+.ht-oracle{display:block;background:linear-gradient(125deg,#c084fc 0%,#67e8f9 45%,#a78bfa 100%);background-size:200% 200%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:gradShift 4.5s ease infinite;filter:drop-shadow(0 0 50px rgba(168,85,247,.35))}
+.ht-oracle.glitch{animation:gradShift 4.5s ease infinite,glitch .15s steps(2,jump-none) 3}
+@keyframes glitch{
+  0%{text-shadow:2px 0 var(--cy3),-2px 0 var(--pu3);transform:translateX(0)}
+  33%{text-shadow:-3px 0 var(--cy3),3px 0 var(--pu3);transform:translateX(2px)}
+  66%{text-shadow:3px 0 var(--cy3),-3px 0 var(--pu3);transform:translateX(-2px)}
+  100%{text-shadow:0 0 transparent;transform:translateX(0)}
+}
+@keyframes gradShift{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+.hero-tag{font-size:clamp(.95rem,2.2vw,1.15rem);color:var(--txm);font-weight:300;margin-bottom:.6rem;animation:fdUp .8s ease .3s both}
+.typing-row{font-size:clamp(.88rem,1.8vw,1rem);color:var(--cy3);min-height:1.8em;margin-bottom:2.8rem;animation:fdUp .8s ease .4s both;font-weight:500}
+.caret{display:inline-block;width:2px;height:1.1em;background:var(--cy3);vertical-align:text-bottom;margin-left:1px;animation:blink 1.1s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-cta{display:flex;gap:1.1rem;justify-content:center;animation:fdUp .8s ease .5s both}
+@keyframes fdUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+
+/* ─── MAGNETIC BUTTON ─── */
+.btn-mag{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:center;gap:.5rem;transition:box-shadow .3s,transform .15s}
+.btn-mag::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.15),transparent 65%);opacity:0;transition:opacity .3s}
+.btn-mag:hover::before{opacity:1}
+.btn-p{background:linear-gradient(135deg,var(--pu),#5b21b6 50%,var(--cy));background-size:200%;color:#fff;border:none;padding:.88rem 2.2rem;border-radius:12px;font-family:var(--fb);font-size:.93rem;font-weight:700;cursor:none;letter-spacing:.03em}
+.btn-p:hover{box-shadow:0 10px 45px rgba(124,58,237,.5),0 0 90px rgba(6,182,212,.12)}
+.btn-g{background:transparent;border:1px solid var(--borderhi);color:var(--tx);padding:.88rem 2rem;border-radius:12px;font-family:var(--fb);font-size:.93rem;font-weight:600;cursor:none;letter-spacing:.03em}
+.btn-g:hover{border-color:var(--cy3);color:var(--cy3);box-shadow:0 0 28px var(--cyglow)}
+.btn-sm{padding:.42rem .95rem;font-size:.8rem;border-radius:8px}
+.btn-gen{padding:.82rem 2rem;font-size:.9rem}
+
+/* ─── SCROLL HINT ─── */
+.scroll-h{position:absolute;bottom:2.2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.5rem;animation:fdUp 1s ease 1.4s both}
+.scroll-h span{font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:var(--txd)}
+.chev i{display:block;width:11px;height:11px;border-right:1.5px solid;border-bottom:1.5px solid;transform:rotate(45deg);margin-bottom:2px}
+.chev i:nth-child(1){border-color:rgba(168,85,247,.3);animation:cf 1.5s ease-in-out infinite}
+.chev i:nth-child(2){border-color:rgba(168,85,247,.6);animation:cf 1.5s ease-in-out .15s infinite}
+.chev i:nth-child(3){border-color:rgba(168,85,247,.9);animation:cf 1.5s ease-in-out .3s infinite}
+@keyframes cf{0%,100%{transform:rotate(45deg) translateY(0);opacity:1}50%{transform:rotate(45deg) translateY(5px);opacity:.3}}
+
+/* ─── MAIN ─── */
+.main{position:relative;z-index:2;max-width:1200px;margin:0 auto;padding:5rem 2rem 5rem}
+.sec-eye{text-align:center;margin-bottom:.6rem}
+.eye-txt{display:inline-flex;align-items:center;gap:.5rem;font-size:.72rem;letter-spacing:.18em;text-transform:uppercase;color:var(--pu3);font-weight:700}
+.eline{display:inline-block;width:28px;height:1px;background:linear-gradient(to right,var(--pu3),transparent)}
+.sec-title{text-align:center;font-family:'Cinzel',serif;font-size:clamp(1.7rem,3.5vw,2.5rem);font-weight:700;margin-bottom:.5rem}
+.sec-title .ac{background:linear-gradient(130deg,var(--pu3),var(--cy3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sec-sub{text-align:center;color:var(--txm);font-size:.93rem;margin-bottom:2.5rem;font-weight:300}
+
+/* ─── TOOL TABS ─── */
+.ttabs{display:flex;background:rgba(255,255,255,.022);border:1px solid var(--border);border-radius:18px;padding:.4rem;margin-bottom:2.2rem;gap:.3rem}
+.ttab{flex:1;background:transparent;border:none;color:var(--txm);padding:.9rem 1.5rem;border-radius:13px;cursor:none;font-family:var(--fb);font-size:.88rem;font-weight:600;transition:all .3s;display:flex;align-items:center;justify-content:center;gap:.5rem;white-space:nowrap;letter-spacing:.02em;position:relative;overflow:hidden}
+.ttab::after{content:'';position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(168,85,247,.18),transparent 65%);opacity:0;transition:opacity .35s}
+.ttab:hover::after{opacity:1}
+.ttab:hover{color:var(--tx)}
+.ttab .emoji{font-size:1.1rem;transition:transform .3s}
+.ttab:hover .emoji{transform:scale(1.25) rotate(-6deg)}
+.ttab.active{background:linear-gradient(135deg,rgba(124,58,237,.28),rgba(6,182,212,.14));color:var(--tx);border:1px solid rgba(168,85,247,.32);box-shadow:inset 0 0 24px rgba(124,58,237,.1),0 0 22px rgba(124,58,237,.07)}
+.ttab.active .emoji{filter:drop-shadow(0 0 7px var(--cy3))}
+
+/* ─── PANELS ─── */
+.panel{display:none;animation:pIn .45s cubic-bezier(.22,1,.36,1) both}
+.panel.active{display:block}
+@keyframes pIn{from{opacity:0;transform:translateY(14px) scale(.99)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+/* ─── TILT CARD ─── */
+.card{background:var(--card);border:1px solid var(--border);border-radius:22px;padding:2.2rem;margin-bottom:1.6rem;position:relative;overflow:hidden;transform-style:preserve-3d;transition:border-color .3s,box-shadow .3s;will-change:transform}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(168,85,247,.45),rgba(34,211,238,.45),transparent)}
+.card-shine{position:absolute;inset:0;pointer-events:none;border-radius:22px;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(168,85,247,.06),transparent 60%);opacity:0;transition:opacity .3s}
+.card:hover .card-shine{opacity:1}
+.c-title{font-family:'Cinzel',serif;font-size:.98rem;color:var(--pu3);margin-bottom:1.8rem;display:flex;align-items:center;gap:.6rem;letter-spacing:.05em}
+
+/* ─── FORM ─── */
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(205px,1fr));gap:1rem;margin-bottom:1.3rem}
+.fg{display:flex;flex-direction:column;gap:.4rem}
+.fg.full{grid-column:1/-1}
+label{font-size:.72rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.1em}
+input,select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--tx);padding:.68rem 1rem;border-radius:10px;font-family:var(--fb);font-size:.86rem;transition:all .25s;outline:none;cursor:none}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238892a4' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:2rem;cursor:none}
+textarea{resize:vertical;min-height:88px;line-height:1.55}
+input:focus,select:focus,textarea:focus{border-color:var(--pu2);box-shadow:0 0 0 3px rgba(124,58,237,.16),0 0 18px rgba(124,58,237,.1)}
+input::placeholder,textarea::placeholder{color:var(--txd)}
+.mode-sw{display:inline-flex;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px;margin-bottom:1.3rem}
+.m-btn{background:transparent;border:none;color:var(--txm);padding:.38rem 1rem;border-radius:7px;cursor:none;font-family:var(--fb);font-size:.8rem;font-weight:600;transition:all .25s}
+.m-btn.active{background:rgba(6,182,212,.14);color:var(--cy3);border:1px solid rgba(34,211,238,.28)}
+
+/* ─── RESULTS ─── */
+.results{margin-top:1.5rem}
+.r-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.r-label{font-size:.76rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:.4rem}
+.r-count{font-size:.77rem;color:var(--cy3);background:var(--cysub);border:1px solid rgba(34,211,238,.2);padding:.18rem .6rem;border-radius:100px}
+
+/* ─── RESULT CARD ─── */
+.rc{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.6rem;margin-bottom:.9rem;transition:border-color .3s ease,box-shadow .3s ease;animation:rcIn .45s ease both;position:relative;overflow:hidden;transform-style:preserve-3d;will-change:transform}
+.rc::after{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(to bottom,var(--pu3),var(--cy2));border-radius:3px 0 0 3px}
+.rc-shine{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(168,85,247,.05),transparent 55%);opacity:0;transition:opacity .25s}
+.rc:hover .rc-shine{opacity:1}
+.rc:hover{border-color:rgba(168,85,247,.28);box-shadow:0 8px 40px rgba(124,58,237,.14),0 0 0 1px rgba(168,85,247,.08)}
+@keyframes rcIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.rc-h{display:flex;align-items:flex-start;gap:1rem;margin-bottom:.75rem}
+.rc-icon{font-size:2rem;flex-shrink:0;line-height:1;filter:drop-shadow(0 0 9px rgba(168,85,247,.4))}
+.rc-meta{flex:1;min-width:0}
+.rc-name{font-family:'Cinzel',serif;font-size:.94rem;color:var(--tx);margin-bottom:.2rem;font-weight:600}
+.rc-seed{font-family:'Courier New',monospace;font-size:1rem;color:var(--cy3);font-weight:700;letter-spacing:.03em}
+.rc-by{font-size:.77rem;color:var(--txd)}
+.rc-desc{font-size:.86rem;color:var(--txm);line-height:1.68;margin-bottom:.9rem}
+.rc-spawn{font-size:.79rem;color:var(--txd);margin-bottom:.9rem}
+.rc-tags{display:flex;flex-wrap:wrap;gap:.35rem;margin-bottom:1rem}
+.tag{padding:.17rem .58rem;border-radius:100px;font-size:.7rem;font-weight:700;letter-spacing:.04em}
+.tp{background:rgba(124,58,237,.14);border:1px solid rgba(168,85,247,.2);color:var(--pu3)}
+.tc{background:var(--cysub);border:1px solid rgba(34,211,238,.2);color:var(--cy3)}
+.tg{background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#34d399}
+.rc-acts{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center}
+.cmd-code{background:rgba(0,0,0,.5);border:1px solid rgba(34,211,238,.15);border-radius:12px;padding:1rem 1.3rem;font-family:'Courier New',monospace;font-size:.83rem;color:var(--cy3);line-height:1.7;word-break:break-all;margin-bottom:.9rem;position:relative;user-select:text!important;cursor:text;transition:border-color .25s,box-shadow .25s}
+.cmd-code:hover{border-color:rgba(34,211,238,.32);box-shadow:inset 0 0 20px rgba(34,211,238,.04),0 0 18px rgba(34,211,238,.07)}
+.mod-stats{display:flex;flex-wrap:wrap;gap:1rem;font-size:.78rem;color:var(--txd);margin-bottom:.9rem}
+.copy-btn{background:var(--pusub);border:1px solid rgba(168,85,247,.22);color:var(--pu3);padding:.36rem .88rem;border-radius:7px;font-family:var(--fb);font-size:.77rem;font-weight:600;cursor:none;transition:background .2s,border-color .2s,box-shadow .2s,color .2s,transform .15s;display:flex;align-items:center;gap:.35rem;white-space:nowrap}
+.copy-btn:hover{background:rgba(124,58,237,.24);border-color:var(--pu3);box-shadow:0 0 16px var(--puglow)}
+.copy-btn:active{transform:scale(.96)!important}
+.copy-btn.ok{background:rgba(16,185,129,.12);border-color:rgba(16,185,129,.4);color:#34d399;box-shadow:0 0 14px rgba(16,185,129,.25)}
+.link-btn{background:var(--cysub);border:1px solid rgba(34,211,238,.22);color:var(--cy3);padding:.36rem .88rem;border-radius:7px;font-family:var(--fb);font-size:.77rem;font-weight:600;cursor:none;transition:all .25s;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem}
+.link-btn:hover{background:rgba(6,182,212,.2);box-shadow:0 0 16px var(--cyglow)}
+.empty-s{text-align:center;padding:4rem 2rem;color:var(--txd)}
+.empty-s .ei{font-size:3rem;margin-bottom:1rem;opacity:.4}
+.empty-s p{font-size:.87rem;line-height:1.65}
+.load-s{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.25rem;padding:4rem}
+.o-spin{width:58px;height:58px;animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.load-msg{font-size:.86rem;color:var(--txm);animation:lp 2s ease-in-out infinite}
+@keyframes lp{0%,100%{opacity:.5}50%{opacity:1}}
+.err-box{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.24);color:#fca5a5;border-radius:12px;padding:1rem 1.5rem;font-size:.86rem;display:flex;gap:.6rem}
+.ai-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;color:var(--cy3);background:var(--cysub);border:1px solid rgba(34,211,238,.18);padding:.2rem .6rem;border-radius:100px;margin-bottom:1rem}
+.gline{height:1px;background:linear-gradient(to right,transparent,var(--pu2),var(--cy2),transparent);opacity:.22}
+
+/* ─── FOOTER ─── */
+footer{position:relative;z-index:2;text-align:center;padding:2.5rem 2rem;color:var(--txd);font-size:.8rem}
+.foot-brand{font-family:var(--fd);background:linear-gradient(130deg,var(--pu3),var(--cy3));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:.95rem;display:block;margin-bottom:.5rem}
+
+/* ─── TOOLTIP ─── */
+#tooltip{position:fixed;z-index:99990;background:rgba(13,13,32,.95);border:1px solid rgba(168,85,247,.3);color:var(--txm);font-size:.75rem;padding:.35rem .75rem;border-radius:8px;pointer-events:none;opacity:0;transition:opacity .2s;white-space:nowrap;font-family:var(--fb);font-weight:500}
+
+/* ─── REVEAL ─── */
+.rev{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s ease}
+.rev.in{opacity:1;transform:translateY(0)}
+
+/* ─── HEX GRID ─── */
+/* handled in JS */
+
+/* ─── PROGRESS BAR ─── */
+#pbar-wrap{position:fixed;top:0;left:0;right:0;z-index:9999;height:2px;opacity:0;transition:opacity .3s}
+#pbar{height:100%;width:0;background:linear-gradient(to right,var(--pu3),var(--cy3));box-shadow:0 0 8px var(--cy3);transition:width .4s ease}
+</style>
+</head>
+<body>
+
+<div id="cur-dot"></div>
+<div id="cur-ring"></div>
+<div id="click-ripple-container"></div>
+<div id="spotlight"></div>
+<canvas id="star-canvas"></canvas>
+<canvas id="hex-canvas"></canvas>
+<div id="tooltip"></div>
+<div id="pbar-wrap"><div id="pbar"></div></div>
+
+<!-- API Modal -->
+<div class="modal-ov" id="apiModal">
+  <div class="modal">
+    <div class="m-title">🔑 Groq API Key</div>
+    <p class="m-sub">Your Groq Cloud key runs entirely in your browser — never sent to any third-party server.</p>
+    <div class="fg" style="margin-bottom:1.25rem">
+      <label>API Key</label>
+      <input type="password" id="modalKey" placeholder="AIzaSy…"/>
+    </div>
+    <div style="display:flex;gap:.75rem;justify-content:flex-end">
+      <button class="btn-g btn-sm btn-mag" onclick="closeModal()">Cancel</button>
+      <button class="btn-p btn-sm btn-mag" onclick="saveKey()">Save Key</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo" data-tip="CraftOracle Home">
+    <svg class="logo-svg" viewBox="0 0 38 38" fill="none">
+      <defs>
+        <linearGradient id="lg1" x1="0" y1="0" x2="38" y2="38"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
+        <radialGradient id="rg1" cx="40%" cy="35%"><stop offset="0%" stop-color="#7c3aed" stop-opacity=".4"/><stop offset="100%" stop-color="#06b6d4" stop-opacity=".1"/></radialGradient>
+        <radialGradient id="rg2"><stop offset="0%" stop-color="#22d3ee"/><stop offset="100%" stop-color="#7c3aed"/></radialGradient>
+      </defs>
+      <circle cx="19" cy="21" r="14" fill="url(#rg1)" stroke="url(#lg1)" stroke-width="1.2"/>
+      <ellipse cx="19" cy="21" rx="7" ry="4.5" fill="rgba(34,211,238,.12)" stroke="url(#lg1)" stroke-width=".7"/>
+      <circle cx="19" cy="21" r="3" fill="url(#rg2)"/>
+      <circle cx="20.2" cy="19.8" r=".9" fill="white" opacity=".85"/>
+      <line x1="19" y1="4" x2="19" y2="7" stroke="#a855f7" stroke-width="1" stroke-linecap="round" opacity=".6"/>
+      <line x1="34" y1="21" x2="31" y2="21" stroke="#22d3ee" stroke-width="1" stroke-linecap="round" opacity=".6"/>
+    </svg>
+    <span class="logo-txt">CraftOracle</span>
+  </a>
+  <div class="nav-pills" id="navPills">
+    <button class="nav-pill active" onclick="navTo('seeds',this)" data-tip="Generate world seeds">🌱 Seeds</button>
+    <button class="nav-pill" onclick="navTo('commands',this)" data-tip="Generate game commands">⚙️ Commands</button>
+    <button class="nav-pill" onclick="navTo('mods',this)" data-tip="Find mods on Modrinth">🧩 Mods</button>
+  </div>
+  <div class="nav-r">
+    <div class="status-pill"><div class="s-dot"></div>Groq Active</div>
+    <button class="btn-key btn-mag" onclick="openModal()" data-tip="Edit your Groq API key">⚙ API Key</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-content">
+    <div class="hero-eye-wrap" id="heroEyeWrap">
+      <div class="eye-glow-ring"></div>
+      <div class="eye-orbit"></div>
+      <div class="eye-orbit2"></div>
+      <svg class="hero-eye-svg" id="heroEye" viewBox="0 0 150 150" fill="none">
+        <defs>
+          <linearGradient id="hg1" x1="0" y1="0" x2="150" y2="150"><stop offset="0%" stop-color="#a855f7"/><stop offset="100%" stop-color="#22d3ee"/></linearGradient>
+          <radialGradient id="hg2" cx="40%" cy="35%"><stop offset="0%" stop-color="#7c3aed" stop-opacity=".18"/><stop offset="60%" stop-color="#06b6d4" stop-opacity=".04"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          <radialGradient id="hg3"><stop offset="0%" stop-color="#a855f7" stop-opacity=".25"/><stop offset="100%" stop-color="transparent"/></radialGradient>
+          <linearGradient id="hg4" x1="18" y1="75" x2="132" y2="75"><stop offset="0%" stop-color="#7c3aed" stop-opacity=".35"/><stop offset="50%" stop-color="#22d3ee" stop-opacity=".65"/><stop offset="100%" stop-color="#7c3aed" stop-opacity=".35"/></linearGradient>
+          <radialGradient id="hg5" cx="44%" cy="40%"><stop offset="0%" stop-color="#6d28d9"/><stop offset="100%" stop-color="#0e7490"/></radialGradient>
+          <radialGradient id="hg6" cx="40%" cy="38%"><stop offset="0%" stop-color="#22d3ee" stop-opacity=".9"/><stop offset="100%" stop-color="#a855f7" stop-opacity=".4"/></radialGradient>
+        </defs>
+        <circle cx="75" cy="75" r="68" stroke="url(#hg1)" stroke-width=".8" stroke-dasharray="5 9" opacity=".38"/>
+        <circle cx="75" cy="75" r="59" stroke="rgba(168,85,247,.18)" stroke-width=".6" stroke-dasharray="2 13" opacity=".55"/>
+        <circle cx="75" cy="75" r="52" fill="url(#hg2)" stroke="url(#hg1)" stroke-width="1.2"/>
+        <circle cx="75" cy="75" r="36" fill="url(#hg3)" opacity=".18"/>
+        <path d="M18 75 Q75 32 132 75 Q75 118 18 75Z" fill="url(#hg4)" stroke="url(#hg1)" stroke-width=".6"/>
+        <circle cx="75" cy="75" r="20" fill="url(#hg5)" stroke="url(#hg1)" stroke-width="1"/>
+        <circle cx="75" cy="75" r="10" fill="#03030a"/>
+        <circle cx="75" cy="75" r="8" fill="url(#hg6)"/>
+        <ellipse cx="69" cy="69" rx="4" ry="2.5" fill="white" opacity=".72"/>
+        <line x1="75" y1="4" x2="75" y2="16" stroke="url(#hg1)" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+        <line x1="75" y1="134" x2="75" y2="146" stroke="url(#hg1)" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+        <line x1="4" y1="75" x2="16" y2="75" stroke="url(#hg1)" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+        <line x1="134" y1="75" x2="146" y2="75" stroke="url(#hg1)" stroke-width="1.5" stroke-linecap="round" opacity=".7"/>
+        <line x1="24" y1="24" x2="32" y2="32" stroke="#a855f7" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+        <line x1="118" y1="118" x2="126" y2="126" stroke="#a855f7" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+        <line x1="126" y1="24" x2="118" y2="32" stroke="#22d3ee" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+        <line x1="24" y1="126" x2="32" y2="118" stroke="#22d3ee" stroke-width="1" stroke-linecap="round" opacity=".45"/>
+        <circle cx="26" cy="48" r="1.8" fill="#a855f7" opacity=".55"/>
+        <circle cx="124" cy="48" r="1.2" fill="#22d3ee" opacity=".55"/>
+        <circle cx="23" cy="102" r="1.2" fill="#22d3ee" opacity=".45"/>
+        <circle cx="127" cy="102" r="1.8" fill="#a855f7" opacity=".45"/>
+      </svg>
+    </div>
+
+    <div class="badge"><div class="badge-blink"></div>Powered by Groq AI &amp; Modrinth</div>
+    <h1 class="hero-title">
+      <span class="ht-craft" id="htCraft">Craft</span>
+      <span class="ht-oracle" id="htOracle">Oracle</span>
+    </h1>
+    <p class="hero-tag">Your AI-powered Minecraft companion.</p>
+    <div class="typing-row"><span id="typer"></span><span class="caret"></span></div>
+    <div class="hero-cta">
+      <button class="btn-p btn-mag" onclick="scrollToTools()">🔮 Consult the Oracle</button>
+      <button class="btn-g btn-mag" onclick="openModal()">⚙ Configure API Key</button>
+    </div>
+  </div>
+  <div class="scroll-h">
+    <span>Scroll</span>
+    <div class="chev"><i></i><i></i><i></i></div>
+  </div>
+</section>
+
+<div class="gline"></div>
+
+<!-- MAIN -->
+<main class="main" id="tools">
+  <div class="rev sec-eye">
+    <span class="eye-txt"><span class="eline"></span>The Oracle's Arsenal<span class="eline" style="background:linear-gradient(to left,var(--cy3),transparent)"></span></span>
+  </div>
+  <h2 class="sec-title rev">Choose Your <span class="ac">Oracle</span></h2>
+  <p class="sec-sub rev">Seeds, Commands, or Mods — let Gemini AI guide your Minecraft world.</p>
+
+  <div class="ttabs rev" id="toolTabs">
+    <button class="ttab active" onclick="switchPanel('seeds',this)"><span class="emoji">🌱</span>Seed Generator</button>
+    <button class="ttab" onclick="switchPanel('commands',this)"><span class="emoji">⚙️</span>Command Generator</button>
+    <button class="ttab" onclick="switchPanel('mods',this)"><span class="emoji">🧩</span>Mod Finder</button>
+  </div>
+
+  <!-- SEEDS -->
+  <div class="panel active" id="panel-seeds">
+    <div class="card tilt rev" id="seedCard">
+      <div class="card-shine"></div>
+      <div class="c-title">🌱 Seed Generator — Java Edition</div>
+      <div class="fgrid">
+        <div class="fg">
+          <label>Primary Biome</label>
+          <select id="s-biome">
+            <option value="any">Any / Surprise me</option>
+            <option value="plains">Plains</option>
+            <option value="forest">Forest</option>
+            <option value="jungle">Jungle</option>
+            <option value="desert">Desert</option>
+            <option value="savanna">Savanna</option>
+            <option value="taiga">Taiga</option>
+            <option value="snowy tundra">Snowy Tundra</option>
+            <option value="mushroom island">Mushroom Island</option>
+            <option value="badlands">Badlands / Mesa</option>
+            <option value="swamp">Swamp</option>
+            <option value="ocean archipelago">Ocean / Archipelago</option>
+            <option value="mountains and cliffs">Mountains &amp; Cliffs</option>
+            <option value="cherry grove">Cherry Grove</option>
+            <option value="deep dark">Deep Dark (Ancient City)</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Structure Near Spawn</label>
+          <select id="s-struct">
+            <option value="any">No preference</option>
+            <option value="village">Village</option>
+            <option value="stronghold close">Stronghold Close</option>
+            <option value="ancient city">Ancient City</option>
+            <option value="woodland mansion">Woodland Mansion</option>
+            <option value="ocean monument">Ocean Monument</option>
+            <option value="ruined portal">Ruined Portal</option>
+            <option value="shipwreck">Shipwreck</option>
+            <option value="pillager outpost">Pillager Outpost</option>
+            <option value="desert temple">Desert Temple</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Playstyle</label>
+          <select id="s-play">
+            <option value="balanced survival">Balanced Survival</option>
+            <option value="hardcore challenge">Hardcore Challenge</option>
+            <option value="peaceful creative building">Peaceful / Building</option>
+            <option value="speedrunning">Speedrunning</option>
+            <option value="exploration and adventure">Exploration</option>
+            <option value="resource rich start">Resource Rich Start</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Terrain Vibe</label>
+          <select id="s-terrain">
+            <option value="varied and interesting">Varied &amp; Interesting</option>
+            <option value="flat and open">Flat &amp; Open</option>
+            <option value="dramatic cliffs and mountains">Dramatic Mountains</option>
+            <option value="water and islands">Water &amp; Islands</option>
+            <option value="cave-heavy underground">Cave Heavy</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Number of Seeds</label>
+          <select id="s-count">
+            <option value="3">3 seeds</option>
+            <option value="5" selected>5 seeds</option>
+            <option value="8">8 seeds</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Version</label>
+          <select id="s-ver">
+            <option value="1.21">Java 1.21 (Latest)</option>
+            <option value="1.20">Java 1.20</option>
+            <option value="1.19">Java 1.19</option>
+            <option value="1.18">Java 1.18</option>
+            <option value="1.17">Java 1.17</option>
+            <option value="1.16">Java 1.16</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Extra Notes (optional)</label>
+          <input type="text" id="s-notes" placeholder="e.g. I want a mountain overlooking an ocean with a lush cave below spawn…"/>
+        </div>
+      </div>
+      <button class="btn-p btn-gen btn-mag" onclick="genSeeds()" data-tip="Generate seeds using Gemini AI">🔮 Generate Seeds</button>
+    </div>
+    <div id="seed-results">
+      <div class="empty-s"><div class="ei">🌍</div><p>Configure your preferences above<br>and the Oracle will find your perfect world.</p></div>
+    </div>
+  </div>
+
+  <!-- COMMANDS -->
+  <div class="panel" id="panel-commands">
+    <div class="card tilt rev" id="cmdCard">
+      <div class="card-shine"></div>
+      <div class="c-title">⚙️ Command Generator — Java Edition</div>
+      <div class="mode-sw">
+        <button class="m-btn active" onclick="cmdMode('free',this)">✍️ Free Text</button>
+        <button class="m-btn" onclick="cmdMode('guided',this)">📋 Guided Mode</button>
+      </div>
+      <div id="cmd-free">
+        <div class="fg" style="margin-bottom:1.25rem">
+          <label>Describe what you want</label>
+          <textarea id="cmd-prompt" placeholder="e.g. Give me a command to summon a giant zombie named 'The Colossus' with 200 health that's on fire and drops a diamond sword when killed…"></textarea>
+        </div>
+      </div>
+      <div id="cmd-guided" style="display:none">
+        <div class="fgrid" style="margin-bottom:1rem">
+          <div class="fg">
+            <label>Command Type</label>
+            <select id="cmd-type">
+              <option value="give">Give Item</option>
+              <option value="summon">Summon Entity</option>
+              <option value="effect">Apply Potion Effect</option>
+              <option value="teleport">Teleport</option>
+              <option value="fill">Fill Blocks</option>
+              <option value="setblock">Set Block</option>
+              <option value="clone">Clone Region</option>
+              <option value="gamemode">Game Mode</option>
+              <option value="weather">Set Weather</option>
+              <option value="time">Set Time</option>
+              <option value="gamerule">Game Rule</option>
+              <option value="execute">Execute (Advanced)</option>
+              <option value="particle">Particle Effect</option>
+              <option value="playsound">Play Sound</option>
+              <option value="advancement">Grant Advancement</option>
+            </select>
+          </div>
+          <div class="fg">
+            <label>Target Selector</label>
+            <select id="cmd-target">
+              <option value="@p">@p — Nearest player</option>
+              <option value="@a">@a — All players</option>
+              <option value="@s">@s — Yourself</option>
+              <option value="@r">@r — Random player</option>
+              <option value="@e">@e — All entities</option>
+            </select>
+          </div>
+          <div class="fg full">
+            <label>Additional Details</label>
+            <input type="text" id="cmd-details" placeholder="e.g. diamond sword with Sharpness 5, Unbreaking 3, custom name 'Excalibur'…"/>
+          </div>
+        </div>
+      </div>
+      <button class="btn-p btn-gen btn-mag" onclick="genCommand()" data-tip="Generate Minecraft command with AI">⚡ Generate Command</button>
+    </div>
+    <div id="cmd-results">
+      <div class="empty-s"><div class="ei">⚙️</div><p>Describe what you need<br>and the Oracle will conjure the perfect command.</p></div>
+    </div>
+  </div>
+
+  <!-- MODS -->
+  <div class="panel" id="panel-mods">
+    <div class="card tilt rev" id="modCard">
+      <div class="card-shine"></div>
+      <div class="c-title">🧩 Mod Finder — via Modrinth</div>
+      <div class="fg" style="margin-bottom:1.25rem">
+        <label>Describe what you're looking for</label>
+        <textarea id="mod-query" placeholder="e.g. I want a magic mod that adds spells, wands, and new dimensions with unique bosses and cool loot…"></textarea>
+      </div>
+      <div class="fgrid">
+        <div class="fg">
+          <label>Mod Loader</label>
+          <select id="mod-loader">
+            <option value="">Any Loader</option>
+            <option value="fabric">Fabric</option>
+            <option value="forge">Forge</option>
+            <option value="quilt">Quilt</option>
+            <option value="neoforge">NeoForge</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Category</label>
+          <select id="mod-cat">
+            <option value="">Any Category</option>
+            <option value="adventure">Adventure</option>
+            <option value="decoration">Decoration</option>
+            <option value="equipment">Equipment / Weapons</option>
+            <option value="food">Food &amp; Farming</option>
+            <option value="magic">Magic</option>
+            <option value="mobs">Mobs &amp; Creatures</option>
+            <option value="optimization">Optimization</option>
+            <option value="technology">Technology</option>
+            <option value="transportation">Transportation</option>
+            <option value="utility">Utility / QoL</option>
+            <option value="world-generation">World Generation</option>
+            <option value="storage">Storage</option>
+            <option value="multiplayer">Multiplayer</option>
+            <option value="cursed">Cursed</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Minecraft Version</label>
+          <select id="mod-ver">
+            <option value="">Any Version</option>
+            <option value="1.21">1.21</option>
+            <option value="1.20.1">1.20.1</option>
+            <option value="1.19.2">1.19.2</option>
+            <option value="1.18.2">1.18.2</option>
+            <option value="1.16.5">1.16.5</option>
+            <option value="1.12.2">1.12.2</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Sort By</label>
+          <select id="mod-sort">
+            <option value="relevance">Relevance</option>
+            <option value="downloads">Most Downloads</option>
+            <option value="follows">Most Followed</option>
+            <option value="newest">Newest</option>
+            <option value="updated">Recently Updated</option>
+          </select>
+        </div>
+      </div>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:1.5rem">
+        <button class="btn-p btn-gen btn-mag" onclick="findMods()" data-tip="Search Modrinth directly">🔍 Search Modrinth</button>
+        <button class="btn-g btn-gen btn-mag" onclick="aiMods()" data-tip="Let AI optimize your search query">🔮 AI-Powered Search</button>
+      </div>
+    </div>
+    <div id="mod-results">
+      <div class="empty-s"><div class="ei">🧩</div><p>Describe the perfect mod and search.<br>The Oracle will find it on Modrinth.</p></div>
+    </div>
+  </div>
+</main>
+
+<div class="gline"></div>
+<footer>
+  <span class="foot-brand">CraftOracle</span>
+  <p>Built with 🔮 Groq AI &amp; Modrinth API &nbsp;·&nbsp; Java Edition &nbsp;·&nbsp; Made for adventurers</p>
+</footer>
+
+<script>
+// ════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════
+let GKEY = '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';
+const GMODEL = 'llama-3.3-70b-versatile';
+
+// ════════════════════════════════════════════
+//  CURSOR + TRAIL
+// ════════════════════════════════════════════
+const dot = document.getElementById('cur-dot');
+const ring = document.getElementById('cur-ring');
+let mx=window.innerWidth/2, my=window.innerHeight/2;
+let rx=mx, ry=my;
+
+const TRAIL_N = 18;
+const trails = Array.from({length:TRAIL_N},(_,i)=>{
+  const d = document.createElement('div');
+  d.className='trail-dot';
+  const t = i/TRAIL_N;
+  const size = 3+t*5;
+  d.style.cssText=`width:${size}px;height:${size}px;opacity:0`;
+  document.body.appendChild(d);
+  return {el:d,x:mx,y:my,size};
+});
+
+const trail_hist = Array(TRAIL_N*3).fill({x:mx,y:my});
+let hist_i=0;
+
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.left=mx+'px'; dot.style.top=my+'px';
+  trail_hist[hist_i%trail_hist.length]={x:mx,y:my};
+  hist_i++;
+  document.getElementById('spotlight').style.background=`radial-gradient(circle 320px at ${mx}px ${my}px,rgba(124,58,237,.055) 0%,transparent 70%)`;
+});
+
+(function animCursor(){
+  rx+=(mx-rx)*.11; ry+=(my-ry)*.11;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+
+  trails.forEach((tr,i)=>{
+    const delay = Math.floor((TRAIL_N-i)*2.2);
+    const idx = ((hist_i-delay)%trail_hist.length+trail_hist.length)%trail_hist.length;
+    const h = trail_hist[idx]||{x:mx,y:my};
+    tr.x+=(h.x-tr.x)*.18; tr.y+=(h.y-tr.y)*.18;
+    const t=i/TRAIL_N;
+    const fade=(1-t)*0.38;
+    const hue = t>0.5?'34,211,238':'168,85,247';
+    tr.el.style.left=tr.x+'px'; tr.el.style.top=tr.y+'px';
+    tr.el.style.opacity=fade+'';
+    tr.el.style.background=`rgba(${hue},${0.5+t*0.5})`;
+    tr.el.style.boxShadow=`0 0 ${4+t*6}px rgba(${hue},.5)`;
+  });
+
+  requestAnimationFrame(animCursor);
+})();
+
+document.querySelectorAll('button,a,input,select,textarea').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{
+    dot.style.transform='translate(-50%,-50%) scale(2)';
+    dot.style.background='var(--pu4)';
+    ring.style.width='48px'; ring.style.height='48px';
+    ring.style.borderColor='rgba(34,211,238,.7)';
+  });
+  el.addEventListener('mouseleave',()=>{
+    dot.style.transform='translate(-50%,-50%) scale(1)';
+    dot.style.background='var(--cy3)';
+    ring.style.width='32px'; ring.style.height='32px';
+    ring.style.borderColor='rgba(168,85,247,.55)';
+  });
+});
+
+// ════════════════════════════════════════════
+//  CLICK RIPPLE
+// ════════════════════════════════════════════
+const ripCont = document.getElementById('click-ripple-container');
+document.addEventListener('click',e=>{
+  const r=document.createElement('div');
+  r.className='ripple';
+  r.style.left=e.clientX+'px'; r.style.top=e.clientY+'px';
+  r.style.width='4px'; r.style.height='4px';
+  ripCont.appendChild(r);
+  setTimeout(()=>r.remove(),700);
+});
+
+// ════════════════════════════════════════════
+//  MAGNETIC BUTTONS
+// ════════════════════════════════════════════
+document.querySelectorAll('.btn-mag').forEach(btn=>{
+  btn.addEventListener('mousemove',e=>{
+    const r=btn.getBoundingClientRect();
+    const cx=r.left+r.width/2, cy=r.top+r.height/2;
+    const dx=e.clientX-cx, dy=e.clientY-cy;
+    const str=0.28;
+    btn.style.transform=`translate(${dx*str}px,${dy*str}px)`;
+    btn.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    btn.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+  btn.addEventListener('mouseleave',()=>{
+    btn.style.transform='';
+  });
+});
+
+// nav pills mouse tracking
+document.querySelectorAll('.nav-pill,.ttab').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    el.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');
+    el.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');
+  });
+});
+
+// ════════════════════════════════════════════
+//  3D TILT CARDS
+// ════════════════════════════════════════════
+function setupTilt(el){
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    el.style.transform=`perspective(900px) rotateY(${x*10}deg) rotateX(${-y*10}deg) scale(1.012)`;
+    el.style.boxShadow=`${-x*20}px ${-y*20}px 40px rgba(124,58,237,.12), 0 20px 60px rgba(0,0,0,.25)`;
+    const shine=el.querySelector('.card-shine');
+    if(shine){shine.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');shine.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');}
+  });
+  el.addEventListener('mouseleave',()=>{
+    el.style.transform='perspective(900px) rotateY(0) rotateX(0) scale(1)';
+    el.style.boxShadow='';
+  });
+}
+document.querySelectorAll('.card.tilt').forEach(setupTilt);
+
+// RC tilt
+function rcTilt(el){
+  el.addEventListener('mousemove',e=>{
+    const r=el.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-.5;
+    const y=(e.clientY-r.top)/r.height-.5;
+    el.style.transform=`perspective(700px) rotateY(${x*6}deg) rotateX(${-y*4}deg) translateX(6px) translateY(-2px)`;
+    const shine=el.querySelector('.rc-shine');
+    if(shine){shine.style.setProperty('--mx',((e.clientX-r.left)/r.width*100)+'%');shine.style.setProperty('--my',((e.clientY-r.top)/r.height*100)+'%');}
+  });
+  el.addEventListener('mouseleave',()=>{
+    el.style.transform='';
+  });
+}
+
+// ════════════════════════════════════════════
+//  HEX GRID CANVAS
+// ════════════════════════════════════════════
+const hc=document.getElementById('hex-canvas');
+const hctx=hc.getContext('2d');
+let HW=hc.width=window.innerWidth, HH=hc.height=window.innerHeight;
+window.addEventListener('resize',()=>{HW=hc.width=window.innerWidth;HH=hc.height=window.innerHeight;});
+
+function hexPoly(cx,cy,r){
+  hctx.beginPath();
+  for(let i=0;i<6;i++){
+    const a=Math.PI/180*(60*i-30);
+    i===0?hctx.moveTo(cx+r*Math.cos(a),cy+r*Math.sin(a)):hctx.lineTo(cx+r*Math.cos(a),cy+r*Math.sin(a));
+  }
+  hctx.closePath();
+}
+
+const HEX_R=40, HEX_PAD=4;
+let hexes=[];
+function buildHexes(){
+  hexes=[];
+  const w=HEX_R*2, h=Math.sqrt(3)*HEX_R, cols=Math.ceil(HW/(w*0.75))+2, rows=Math.ceil(HH/h)+2;
+  for(let row=-1;row<rows;row++){
+    for(let col=-1;col<cols;col++){
+      const x=col*w*0.75;
+      const y=row*h+(col%2)*h/2;
+      hexes.push({x,y,glow:0});
+    }
+  }
+}
+buildHexes();
+window.addEventListener('resize',buildHexes);
+
+let hexT=0;
+function drawHex(){
+  hexT+=0.003;
+  hctx.clearRect(0,0,HW,HH);
+  hexes.forEach(h=>{
+    const dx=h.x-mx, dy=h.y-my;
+    const d=Math.sqrt(dx*dx+dy*dy);
+    const proximity=Math.max(0,1-d/200);
+    h.glow+=(proximity-h.glow)*0.1;
+    if(h.glow<0.005) return;
+    const alpha=h.glow*0.55;
+    hctx.save();
+    hexPoly(h.x,h.y,HEX_R-HEX_PAD);
+    const grad=hctx.createRadialGradient(h.x,h.y,0,h.x,h.y,HEX_R);
+    grad.addColorStop(0,`rgba(124,58,237,${alpha*0.8})`);
+    grad.addColorStop(1,`rgba(34,211,238,${alpha*0.3})`);
+    hctx.fillStyle=grad;
+    hctx.fill();
+    hctx.strokeStyle=`rgba(168,85,247,${alpha*0.9})`;
+    hctx.lineWidth=0.8;
+    hctx.stroke();
+    hctx.restore();
+  });
+  requestAnimationFrame(drawHex);
+}
+drawHex();
+
+// ════════════════════════════════════════════
+//  STAR FIELD
+// ════════════════════════════════════════════
+const sc=document.getElementById('star-canvas');
+const sctx=sc.getContext('2d');
+let SW=sc.width=window.innerWidth,SH=sc.height=window.innerHeight;
+window.addEventListener('resize',()=>{SW=sc.width=window.innerWidth;SH=sc.height=window.innerHeight;});
+
+const STARS=Array.from({length:200},()=>({
+  x:Math.random()*1920,y:Math.random()*1080,
+  r:Math.random()*1.2+0.2,
+  a:Math.random()*.6+.1,
+  s:Math.random()*.3+.05,
+  ph:Math.random()*Math.PI*2,
+  c:Math.random()>.55?'168,85,247':'34,211,238'
+}));
+
+let sT=0;
+function drawStars(){
+  sT+=.004;
+  sctx.clearRect(0,0,SW,SH);
+  STARS.forEach(s=>{
+    s.ph+=s.s*.04;
+    s.x+=.12; if(s.x>SW+10) s.x=-10;
+    const a=s.a*(0.6+0.4*Math.sin(s.ph));
+    sctx.save();
+    sctx.globalAlpha=a;
+    sctx.fillStyle=`rgb(${s.c})`;
+    sctx.shadowBlur=6; sctx.shadowColor=`rgba(${s.c},.5)`;
+    sctx.beginPath();
+    sctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    sctx.fill();
+    sctx.restore();
+  });
+  requestAnimationFrame(drawStars);
+}
+drawStars();
+
+// ════════════════════════════════════════════
+//  HERO EYE — follows mouse slightly
+// ════════════════════════════════════════════
+const heroEye=document.getElementById('heroEye');
+const heroEyeWrap=document.getElementById('heroEyeWrap');
+document.addEventListener('mousemove',e=>{
+  const r=heroEyeWrap.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  const dx=(e.clientX-cx)/window.innerWidth;
+  const dy=(e.clientY-cy)/window.innerHeight;
+  heroEye.style.transform=`translateY(${-6+dy*12}px) rotateX(${-dy*6}deg) rotateY(${dx*8}deg)`;
+});
+
+// Glitch on hover
+document.getElementById('htOracle').addEventListener('mouseenter',()=>{
+  document.getElementById('htOracle').classList.add('glitch');
+  setTimeout(()=>document.getElementById('htOracle').classList.remove('glitch'),450);
+});
+
+// ════════════════════════════════════════════
+//  TYPING ANIMATION
+// ════════════════════════════════════════════
+const phrases=['Generate the perfect world seed…','Craft powerful in-game commands…','Discover legendary mods on Modrinth…','Let the Oracle guide your adventure…','Your next Minecraft world awaits…','Consult the Oracle. Build anything…'];
+let pi=0,ci=0,del=false;
+const typer=document.getElementById('typer');
+function typeLoop(){
+  const ph=phrases[pi];
+  if(!del){typer.textContent=ph.slice(0,ci+1);ci++;if(ci===ph.length){del=true;setTimeout(typeLoop,2400);return;}}
+  else{typer.textContent=ph.slice(0,ci-1);ci--;if(ci===0){del=false;pi=(pi+1)%phrases.length;}}
+  setTimeout(typeLoop,del?36:60);
+}
+typeLoop();
+
+// ════════════════════════════════════════════
+//  TOOLTIP
+// ════════════════════════════════════════════
+const tip=document.getElementById('tooltip');
+document.querySelectorAll('[data-tip]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{tip.textContent=el.dataset.tip;tip.style.opacity='1';});
+  el.addEventListener('mousemove',e=>{tip.style.left=(e.clientX+16)+'px';tip.style.top=(e.clientY-32)+'px';});
+  el.addEventListener('mouseleave',()=>{tip.style.opacity='0';});
+});
+
+// ════════════════════════════════════════════
+//  SCROLL REVEAL
+// ════════════════════════════════════════════
+function scrollToTools(){document.getElementById('tools').scrollIntoView({behavior:'smooth'});}
+const ro=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');}),{threshold:.1});
+document.querySelectorAll('.rev').forEach(el=>ro.observe(el));
+
+// ════════════════════════════════════════════
+//  PROGRESS BAR
+// ════════════════════════════════════════════
+const pbarWrap=document.getElementById('pbar-wrap');
+const pbar=document.getElementById('pbar');
+let pInt;
+function startProgress(){
+  pbarWrap.style.opacity='1'; pbar.style.width='0';
+  let p=0;
+  pInt=setInterval(()=>{p+=Math.random()*18;if(p>88)p=88;pbar.style.width=p+'%';},220);
+}
+function endProgress(){
+  clearInterval(pInt); pbar.style.width='100%';
+  setTimeout(()=>{pbarWrap.style.opacity='0';pbar.style.width='0';},500);
+}
+
+// ════════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════════
+function openModal(){document.getElementById('modalKey').value=GKEY;document.getElementById('apiModal').classList.add('open');}
+function closeModal(){document.getElementById('apiModal').classList.remove('open');}
+function saveKey(){const k=document.getElementById('modalKey').value.trim();if(k)GKEY=k;closeModal();}
+document.getElementById('apiModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+
+// ════════════════════════════════════════════
+//  NAV / PANELS
+// ════════════════════════════════════════════
+function navTo(name,btn){
+  document.querySelectorAll('.nav-pill').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  scrollToTools();
+  setTimeout(()=>{
+    const t=document.querySelector(`[onclick*="switchPanel('${name}"`);
+    if(t) switchPanel(name,t);
+  },420);
+}
+function switchPanel(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ttab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+  btn.classList.add('active');
+  setTimeout(()=>{
+    document.querySelectorAll('#panel-'+name+' .card.tilt').forEach(setupTilt);
+  },50);
+}
+function cmdMode(mode,btn){
+  document.querySelectorAll('.m-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('cmd-free').style.display=mode==='free'?'block':'none';
+  document.getElementById('cmd-guided').style.display=mode==='guided'?'block':'none';
+}
+
+// ════════════════════════════════════════════
+//  GROQ API
+// ════════════════════════════════════════════
+async function gemini(prompt){
+  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+GKEY},
+    body:JSON.stringify({
+      model:GMODEL,
+      messages:[{role:'user',content:prompt}],
+      temperature:.85,
+      max_tokens:2600
+    })
+  });
+  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+  const d=await res.json();
+  return d.choices?.[0]?.message?.content||'';
+}
+function parseJSON(raw){return JSON.parse(raw.replace(/```json|```/g,'').trim());}
+
+// ════════════════════════════════════════════
+//  UI HELPERS
+// ════════════════════════════════════════════
+function loading(id,msg='The Oracle is consulting the cosmos…'){
+  document.getElementById(id).innerHTML=`<div class="load-s">
+    <svg class="o-spin" viewBox="0 0 58 58" fill="none">
+      <circle cx="29" cy="29" r="24" stroke="url(#sl1)" stroke-width="2" stroke-dasharray="36 72" stroke-linecap="round"/>
+      <circle cx="29" cy="29" r="16" stroke="url(#sl2)" stroke-width="1.5" stroke-dasharray="18 40" stroke-linecap="round"/>
+      <circle cx="29" cy="29" r="5.5" fill="url(#sl3)"/>
+      <defs>
+        <linearGradient id="sl1" x1="0" y1="0" x2="58" y2="58"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/></linearGradient>
+        <linearGradient id="sl2" x1="58" y1="0" x2="0" y2="58"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></linearGradient>
+        <radialGradient id="sl3"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></radialGradient>
+      </defs>
+    </svg>
+    <div class="load-msg">${msg}</div>
+  </div>`;
+}
+function errBox(id,msg){document.getElementById(id).innerHTML=`<div class="err-box">⚠️ <span>${msg}</span></div>`;}
+function copy(txt,btn){
+  // Robust copy: works on file://, http://, and all browsers
+  const doFeedback=()=>{
+    const o=btn.innerHTML;
+    btn.innerHTML='✓ Copied!';btn.classList.add('ok');
+    setTimeout(()=>{btn.innerHTML=o;btn.classList.remove('ok');},2200);
+  };
+  if(navigator.clipboard&&window.isSecureContext){
+    navigator.clipboard.writeText(txt).then(doFeedback).catch(()=>fallbackCopy(txt,doFeedback));
+  } else {
+    fallbackCopy(txt,doFeedback);
+  }
+}
+function fallbackCopy(txt,cb){
+  const ta=document.createElement('textarea');
+  ta.value=txt;
+  ta.style.cssText='position:fixed;left:-9999px;top:-9999px;opacity:0';
+  document.body.appendChild(ta);
+  ta.focus();ta.select();
+  try{document.execCommand('copy');cb();}catch(e){console.warn('Copy failed',e);}
+  document.body.removeChild(ta);
+}
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n;}
+const bmap={plains:'🌾',forest:'🌲',jungle:'🌴',desert:'🏜️',savanna:'🦁',taiga:'🌲',snowy:'❄️',mushroom:'🍄',badlands:'🏔️',swamp:'🐸',ocean:'🌊',mountains:'⛰️',cherry:'🌸',deep:'🕳️',any:'🌍'};
+function bEmoji(b=''){const k=Object.keys(bmap).find(k=>b.toLowerCase().includes(k));return bmap[k]||'🌍';}
+
+// ════════════════════════════════════════════
+//  SEEDS
+// ════════════════════════════════════════════
+async function genSeeds(){
+  const biome=document.getElementById('s-biome').value;
+  const struct=document.getElementById('s-struct').value;
+  const play=document.getElementById('s-play').value;
+  const terrain=document.getElementById('s-terrain').value;
+  const count=document.getElementById('s-count').value;
+  const ver=document.getElementById('s-ver').value;
+  const notes=document.getElementById('s-notes').value.trim();
+  loading('seed-results','Scanning infinite dimensions for your perfect seed…');
+  startProgress();
+  const prompt=`You are an expert Minecraft Java Edition ${ver} player and seed analyst.
+Generate exactly ${count} unique, well-curated Minecraft Java Edition ${ver} seeds:
+- Primary biome: ${biome}
+- Key structure near spawn (within 500 blocks ideally): ${struct}
+- Playstyle/difficulty: ${play}
+- Terrain preference: ${terrain}
+${notes?`- Extra notes: ${notes}`:''}
+Make each seed genuinely interesting and different. Seeds can be real known seeds or plausible numeric seeds.
+Respond ONLY with a raw JSON array (no markdown, no explanation):
+[{"seed":"value","name":"evocative world name","biome":"primary biome at spawn","spawnDesc":"1 sentence about spawn area","description":"2-3 sentences why this seed is special","highlights":["h1","h2","h3"],"difficulty":"easy/medium/hard"}]`;
+  try{const raw=await gemini(prompt);endProgress();renderSeeds(parseJSON(raw));}
+  catch(e){endProgress();errBox('seed-results','Failed: '+e.message+' — Check your Gemini API key.');}
+}
+function bindCopyTriggers(scope){
+  document.querySelectorAll(scope+' .copy-trigger').forEach(btn=>{
+    btn.addEventListener('click',e=>{
+      e.stopPropagation();
+      const txt=decodeURIComponent(btn.dataset.copy||'');
+      copy(txt,btn);
+    });
+  });
+}
+function bindMagButtons(scope){
+  document.querySelectorAll(scope+' .btn-mag').forEach(b=>{
+    b.addEventListener('mousemove',e=>{
+      const r=b.getBoundingClientRect();
+      const dx=e.clientX-r.left-r.width/2;
+      const dy=e.clientY-r.top-r.height/2;
+      b.style.transform=`translate(${dx*.28}px,${dy*.28}px)`;
+    });
+    b.addEventListener('mouseleave',()=>{b.style.transform='';});
+  });
+}
+function selectText(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const range=document.createRange();
+  range.selectNodeContents(el);
+  const sel=window.getSelection();
+  sel.removeAllRanges();
+  sel.addRange(range);
+}
+
+function renderSeeds(seeds){
+  const el=document.getElementById('seed-results');
+  if(!seeds?.length){el.innerHTML='<div class="empty-s"><div class="ei">😔</div><p>No seeds. Try different options.</p></div>';return;}
+  const dt=d=>{if(!d)return'';const m={easy:'tg',medium:'tc',hard:'tp'};return`<span class="tag ${m[d.toLowerCase()]||'tp'}">${d}</span>`;}
+  el.innerHTML=`<div class="results">
+    <div class="r-head"><span class="r-label">🌍 Generated Seeds</span><span class="r-count">${seeds.length} results</span></div>
+    ${seeds.map((s,i)=>`
+    <div class="rc" style="animation-delay:${i*.08}s">
+      <div class="rc-shine"></div>
+      <div class="rc-h"><div class="rc-icon">${bEmoji(s.biome)}</div>
+        <div class="rc-meta"><div class="rc-name">${s.name||'Seed #'+(i+1)}</div><div class="rc-seed">${s.seed}</div></div>
+      </div>
+      ${s.spawnDesc?`<div class="rc-spawn">📍 ${s.spawnDesc}</div>`:''}
+      <p class="rc-desc">${s.description||''}</p>
+      <div class="rc-tags">${(s.highlights||[]).map(h=>`<span class="tag tp">${h}</span>`).join('')}${dt(s.difficulty)}${s.biome&&s.biome!=='any'?`<span class="tag tc">${s.biome}</span>`:''}</div>
+      <div class="rc-acts">
+        <button class="copy-btn btn-mag copy-trigger" data-copy="${encodeURIComponent(s.seed)}">📋 Copy Seed</button>
+        <button class="copy-btn btn-mag copy-trigger" data-copy="${encodeURIComponent(s.name||'')}">📋 Copy Name</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  document.querySelectorAll('#seed-results .rc').forEach(rcTilt);
+  bindCopyTriggers('#seed-results');
+  bindMagButtons('#seed-results');
+}
+
+// ════════════════════════════════════════════
+//  COMMANDS
+// ════════════════════════════════════════════
+async function genCommand(){
+  const isFree=document.getElementById('cmd-free').style.display!=='none';
+  let prompt;
+  if(isFree){
+    const up=document.getElementById('cmd-prompt').value.trim();
+    if(!up){alert('Please describe the command!');return;}
+    prompt=`You are a Minecraft Java Edition command expert. User wants: "${up}"
+Generate the best command(s) to achieve this. Respond ONLY with raw JSON array:
+[{"title":"short name","command":"/full command","description":"what it does","usage":"when to use","tips":["tip1","tip2"]}]
+Include up to 3 commands if needed. Valid Java Edition syntax only.`;
+  }else{
+    const type=document.getElementById('cmd-type').value;
+    const target=document.getElementById('cmd-target').value;
+    const details=document.getElementById('cmd-details').value.trim();
+    prompt=`Minecraft Java Edition /${type} command. Target: ${target}. Details: ${details||'standard usage'}.
+Respond ONLY with raw JSON array:
+[{"title":"short name","command":"/full command","description":"what it does","usage":"how to use","tips":["tip1","tip2"]}]
+1-3 variations. Valid Java Edition syntax.`;
+  }
+  loading('cmd-results','Conjuring your command from the void…');
+  startProgress();
+  try{const raw=await gemini(prompt);endProgress();renderCmds(parseJSON(raw));}
+  catch(e){endProgress();errBox('cmd-results','Failed: '+e.message);}
+}
+function renderCmds(cmds){
+  const el=document.getElementById('cmd-results');
+  if(!cmds?.length){el.innerHTML='<div class="empty-s"><div class="ei">😔</div><p>No commands generated.</p></div>';return;}
+  el.innerHTML=`<div class="results">
+    <div class="r-head"><span class="r-label">⚡ Generated Commands</span><span class="r-count">${cmds.length} result${cmds.length>1?'s':''}</span></div>
+    ${cmds.map((c,i)=>`
+    <div class="rc" style="animation-delay:${i*.1}s">
+      <div class="rc-shine"></div>
+      <div class="rc-h"><div class="rc-icon">⚡</div><div class="rc-name">${c.title||'Command '+(i+1)}</div></div>
+      <div class="cmd-code" id="cmd-text-${i}">${esc(c.command||'')}</div>
+      <p class="rc-desc">${c.description||''}</p>
+      ${c.usage?`<p class="rc-desc" style="font-size:.79rem;color:var(--txd)">💡 ${c.usage}</p>`:''}
+      <div class="rc-tags">${(c.tips||[]).map(t=>`<span class="tag tc">${t}</span>`).join('')}</div>
+      <div class="rc-acts">
+        <button class="copy-btn btn-mag copy-trigger" data-copy="${encodeURIComponent(c.command||'')}">📋 Copy Command</button>
+        <button class="copy-btn btn-mag" onclick="selectText('cmd-text-${i}')">🖱️ Select All</button>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  document.querySelectorAll('#cmd-results .rc').forEach(rcTilt);
+  bindCopyTriggers('#cmd-results');
+  bindMagButtons('#cmd-results');
+}
+
+// ════════════════════════════════════════════
+//  MODS
+// ════════════════════════════════════════════
+async function findMods(){
+  const q=document.getElementById('mod-query').value.trim();
+  const loader=document.getElementById('mod-loader').value;
+  const cat=document.getElementById('mod-cat').value;
+  const ver=document.getElementById('mod-ver').value;
+  const sort=document.getElementById('mod-sort').value;
+  if(!q){alert('Describe the mod!');return;}
+  loading('mod-results','Searching the Modrinth archives…');
+  startProgress();
+  const facets=[['project_type:mod']];
+  if(loader) facets.push([`categories:${loader}`]);
+  if(cat) facets.push([`categories:${cat}`]);
+  if(ver) facets.push([`versions:${ver}`]);
+  const params=new URLSearchParams({query:q,facets:JSON.stringify(facets),limit:'12',index:sort||'relevance'});
+  try{
+    const res=await fetch(`https://api.modrinth.com/v2/search?${params}`);
+    const data=await res.json();
+    endProgress();renderMods(data.hits||[],false);
+  }catch(e){endProgress();errBox('mod-results','Modrinth search failed: '+e.message);}
+}
+async function aiMods(){
+  const q=document.getElementById('mod-query').value.trim();
+  const loader=document.getElementById('mod-loader').value;
+  const cat=document.getElementById('mod-cat').value;
+  if(!q){alert('Describe the mod!');return;}
+  loading('mod-results','The Oracle is crafting the perfect search query…');
+  startProgress();
+  const aiPr=`Minecraft player wants a mod. Description: "${q}". Loader: ${loader||'any'}. Category: ${cat||'any'}.
+Generate 3 optimized short Modrinth search terms (1-4 words each).
+Respond ONLY with a raw JSON string array: ["term1","term2","term3"]`;
+  try{
+    const raw=await gemini(aiPr);
+    const queries=parseJSON(raw);
+    const facets=[['project_type:mod']];
+    if(loader) facets.push([`categories:${loader}`]);
+    if(cat) facets.push([`categories:${cat}`]);
+    const params=new URLSearchParams({query:queries[0]||q,facets:JSON.stringify(facets),limit:'12',index:'relevance'});
+    const res=await fetch(`https://api.modrinth.com/v2/search?${params}`);
+    const data=await res.json();
+    endProgress();renderMods(data.hits||[],true,queries);
+  }catch(e){endProgress();errBox('mod-results','AI search failed: '+e.message);}
+}
+function renderMods(mods,ai=false,queries=[]){
+  const el=document.getElementById('mod-results');
+  if(!mods.length){el.innerHTML='<div class="empty-s"><div class="ei">😔</div><p>No mods found. Try different keywords.</p></div>';return;}
+  const aiBadge=ai?`<div class="ai-badge">🔮 AI-Optimized${queries.length?`: "${queries[0]}"`:''}</div>`:'';
+  el.innerHTML=`<div class="results">
+    <div class="r-head"><span class="r-label">🧩 Modrinth Results</span><span class="r-count">${mods.length} mods</span></div>
+    ${aiBadge}
+    ${mods.map((m,i)=>{
+      const loaders=(m.loaders||[]).map(l=>`<span class="tag tc">${l}</span>`).join('');
+      const cats=(m.categories||[]).slice(0,3).map(c=>`<span class="tag tp">${c}</span>`).join('');
+      return`<div class="rc" style="animation-delay:${i*.07}s">
+        <div class="rc-shine"></div>
+        <div class="rc-h"><div class="rc-icon">🧩</div>
+          <div class="rc-meta"><div class="rc-name">${m.title||m.slug||'Unknown'}</div><div class="rc-by">by ${m.author||'Unknown'}</div></div>
+        </div>
+        <p class="rc-desc">${m.description||''}</p>
+        <div class="mod-stats">
+          ${m.downloads?`<span>⬇️ ${fmt(m.downloads)} downloads</span>`:''}
+          ${m.follows?`<span>❤️ ${fmt(m.follows)} follows</span>`:''}
+          ${m.date_modified?`<span>🕐 ${new Date(m.date_modified).toLocaleDateString()}</span>`:''}
+        </div>
+        <div class="rc-tags">${loaders}${cats}</div>
+        <div class="rc-acts">
+          <a href="https://modrinth.com/mod/${m.slug}" target="_blank" class="link-btn">🌿 View on Modrinth ↗</a>
+          <button class="copy-btn btn-mag copy-trigger" data-copy="${encodeURIComponent(m.title||'')}">📋 Copy Name</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>`;
+  document.querySelectorAll('#mod-results .rc').forEach(rcTilt);
+  bindCopyTriggers('#mod-results');
+  bindMagButtons('#mod-results');
+}
+</script>
+</body>
+</html>
