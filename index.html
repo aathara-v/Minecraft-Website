@@ -3,6 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="CraftOracle — AI-powered Minecraft companion: generate, explain & fix Java Edition commands, find mods on Modrinth, and build modpacks.">
+<meta name="theme-color" content="#070712">
+<meta property="og:title" content="CraftOracle — Your AI-powered Minecraft companion">
+<meta property="og:description" content="Generate, explain & fix Minecraft Java Edition commands, find mods on Modrinth, and build modpacks — powered by NVIDIA NIM.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://aathara-v.github.io/Minecraft-Website/">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='18' r='11.5' fill='%230c0c1e' stroke='%23a855f7' stroke-width='2'/%3E%3Ccircle cx='16' cy='18' r='4' fill='%2322d3ee'/%3E%3C/svg%3E">
 <title>CraftOracle — Your AI-powered Minecraft companion</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -70,10 +77,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:58px;padding:0 1.8rem
 /* ── HERO ── */
 .hero{position:relative;z-index:2;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:6.5rem 2rem 4rem;text-align:center}
 .hero-inner{max-width:700px;position:relative;z-index:2}
-.eye-wrap{width:110px;height:110px;margin:0 auto 2rem;position:relative;cursor:none}
+.eye-wrap{width:110px;height:110px;margin:0 auto 2rem;position:relative;cursor:none;animation:floatY 6s ease-in-out infinite}
 .eye-ring{position:absolute;inset:-12px;border-radius:50%;border:1px dashed rgba(168,85,247,.15);animation:orbit 18s linear infinite}
 @keyframes orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.eye-svg{width:110px;height:110px;animation:floatY 6s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(168,85,247,.3)) drop-shadow(0 0 35px rgba(34,211,238,.1));position:relative;z-index:1}
+.eye-svg{width:110px;height:110px;filter:drop-shadow(0 0 18px rgba(168,85,247,.3)) drop-shadow(0 0 35px rgba(34,211,238,.1));position:relative;z-index:1}
 @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
 .badge{display:inline-flex;align-items:center;gap:.4rem;background:rgba(124,58,237,.07);border:1px solid rgba(168,85,247,.16);color:var(--pu2);padding:.28rem .85rem;border-radius:100px;font-size:.7rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.3rem;animation:fdUp .7s ease .1s both}
 .bdot{width:4px;height:4px;border-radius:50%;background:var(--cy2);box-shadow:0 0 5px var(--cy2);animation:sdot 2s infinite}
@@ -206,8 +213,8 @@ nav{position:fixed;top:0;left:0;right:0;z-index:500;height:58px;padding:0 1.8rem
 .fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.8rem;margin-bottom:1rem}
 .fg{display:flex;flex-direction:column;gap:.32rem}.fg.full{grid-column:1/-1}
 label{font-size:.66rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.1em}
-input,select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--tx);padding:.58rem .85rem;border-radius:8px;font-family:var(--fb);font-size:.82rem;transition:border-color .18s,box-shadow .18s;outline:none}
-select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%236b7a94' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:1.8rem;cursor:none}
+input,select,textarea{background:var(--surface);border:1px solid var(--border);color:var(--tx);padding:.58rem .85rem;border-radius:8px;font-family:var(--fb);font-size:.82rem;transition:border-color .18s,box-shadow .18s;outline:none;cursor:text}
+select{appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='9' height='6'%3E%3Cpath d='M1 1l3.5 3.5L8 1' stroke='%236b7a94' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;padding-right:1.8rem;cursor:pointer}
 textarea{resize:vertical;min-height:78px;line-height:1.55}
 input:focus,select:focus,textarea:focus{border-color:var(--pu);box-shadow:0 0 0 2px rgba(124,58,237,.1)}
 input::placeholder,textarea::placeholder{color:var(--txd)}
@@ -319,6 +326,35 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
 
 /* ── REVEAL ── */
 .rev{opacity:0;transform:translateY(16px);transition:opacity .55s ease,transform .55s ease}.rev.in{opacity:1;transform:translateY(0)}
+/* ── RESPONSIVE ── */
+@media (max-width: 900px){
+  nav{height:auto;padding:.65rem 1rem}
+  .nav-c{position:fixed;left:.8rem;right:.8rem;bottom:.8rem;top:auto;justify-content:center;background:rgba(7,7,18,.94);border:1px solid var(--border2);border-radius:14px;padding:4px;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);z-index:600;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+  .np{flex:1;text-align:center;padding:.5rem .25rem;font-size:.72rem}
+  .s-pill{display:none}
+  #mp-tray{bottom:4.8rem;right:1rem}
+  .hero{padding:5rem 1.2rem 5.5rem}
+  .main{padding:3rem 1rem 6.5rem}
+  .ttabs{flex-wrap:wrap}
+  .ttab{flex:1 1 45%;padding:.6rem .5rem;font-size:.75rem}
+  .h-entry-header{flex-wrap:wrap}
+  .h-entry-acts{width:100%;justify-content:flex-end}
+  .mp-header,.mp-meta-row{flex-wrap:wrap}
+  .rc-acts{flex-wrap:wrap}
+  #tip,#cur-dot,#cur-ring,.trail{display:none}
+  body{cursor:auto}
+  button,a,input,select,textarea,.sc{cursor:pointer}
+}
+@media (max-width: 520px){
+  .cta{flex-direction:column;align-items:stretch}
+  .cta .btn-mag{width:100%}
+  .fgrid{grid-template-columns:1fr}
+  .hero{padding:4.5rem 1rem 5rem}
+  .hero-title{font-size:clamp(2.3rem,9vw,3rem)}
+  .modal{width:min(94%,420px);padding:1.2rem}
+  .rc{padding:1rem 1.05rem}
+  .cmd-code{font-size:.72rem}
+}
 </style>
 </head>
 <body>
@@ -334,9 +370,9 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
 <!-- Modal -->
 <div class="modal-ov" id="apiModal">
   <div class="modal">
-    <div class="m-title">🔑 Groq API Key</div>
+    <div class="m-title">🔑 NVIDIA NIM API Key</div>
     <p class="m-sub">Runs entirely in your browser — saved to localStorage on this device.</p>
-    <div class="fg" style="margin-bottom:1.1rem"><label>API Key</label><input type="password" id="modalKey" placeholder="gsk_…"/></div>
+    <div class="fg" style="margin-bottom:1.1rem"><label>API Key</label><input type="password" id="modalKey" placeholder="nvapi-…"/></div>
     <div style="display:flex;gap:.55rem;justify-content:flex-end">
       <button class="btn-g btn-sm btn-mag" onclick="closeModal()">Cancel</button>
       <button class="btn-p btn-sm btn-mag" onclick="saveKey()">Save</button>
@@ -369,7 +405,7 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
     <button class="np" onclick="navTo('history',this)" data-tip="Your history">🕐 History <span class="h-badge" id="navHistCount">0</span></button>
   </div>
   <div class="nav-r">
-    <div class="s-pill"><div class="s-dot"></div>Groq Active</div>
+    <div class="s-pill"><div class="s-dot"></div><span id="statusTxt">NVIDIA NIM Active</span></div>
     <button class="btn-fx btn-mag on" id="fxBtn" onclick="toggleFx()" data-tip="Toggle effects">✦ FX</button>
     <button class="btn-key btn-mag" onclick="openModal()" data-tip="Edit API key">⚙ Key</button>
   </div>
@@ -408,7 +444,7 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
         <line x1="99" y1="55" x2="107" y2="55" stroke="url(#hg1)" stroke-width="1.1" stroke-linecap="round" opacity=".55"/>
       </svg>
     </div>
-    <div class="badge"><div class="bdot"></div>Powered by Groq AI &amp; Modrinth</div>
+    <div class="badge"><div class="bdot"></div>Powered by NVIDIA NIM &amp; Modrinth</div>
     <h1 class="hero-title"><span class="ht-c">Craft</span><span class="ht-o" id="htO">Oracle</span></h1>
     <p class="hero-sub">Your AI-powered Minecraft companion.</p>
     <div class="typr"><span id="typer"></span><span class="caret"></span></div>
@@ -428,10 +464,10 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
   <p class="sec-sub rev">Commands, mods, history — all in one place.</p>
 
   <div class="ttabs rev">
-    <button class="ttab active" onclick="switchPanel('commands',this)"><span class="em">⚙️</span> Command Generator</button>
-    <button class="ttab" onclick="switchPanel('mods',this)"><span class="em">🧩</span> Mod Finder</button>
-    <button class="ttab" onclick="switchPanel('modpack',this)"><span class="em">📦</span> Modpack Builder</button>
-    <button class="ttab" onclick="switchPanel('history',this)"><span class="em">🕐</span> History <span class="h-badge" id="tabHistCount">0</span></button>
+    <button class="ttab active" id="tab-commands" onclick="switchPanel('commands',this)"><span class="em">⚙️</span> Command Generator</button>
+    <button class="ttab" id="tab-mods" onclick="switchPanel('mods',this)"><span class="em">🧩</span> Mod Finder</button>
+    <button class="ttab" id="tab-modpack" onclick="switchPanel('modpack',this)"><span class="em">📦</span> Modpack Builder</button>
+    <button class="ttab" id="tab-history" onclick="switchPanel('history',this)"><span class="em">🕐</span> History <span class="h-badge" id="tabHistCount">0</span></button>
   </div>
 
   <!-- ── COMMANDS ── -->
@@ -620,7 +656,7 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
       <div id="mp-list-wrap">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.65rem">
           <span style="font-size:.68rem;font-weight:700;color:var(--txm);text-transform:uppercase;letter-spacing:.1em">Mods in Pack <span id="mp-count-label" style="color:var(--cy2)">0</span></span>
-          <button class="sc" onclick="switchPanel('mods',document.querySelector('[onclick*=\'switchPanel(\\\'mods\\\'\']'))" style="font-size:.68rem" data-tip="Go find mods">+ Find More Mods</button>
+          <button class="sc" onclick="switchPanel('mods',document.getElementById('tab-mods'))" style="font-size:.68rem" data-tip="Go find mods">+ Find More Mods</button>
         </div>
         <div class="mp-list" id="mp-list"></div>
       </div>
@@ -647,7 +683,7 @@ footer{position:relative;z-index:2;text-align:center;padding:1.8rem 2rem;color:v
 <div class="gline"></div>
 <footer>
   <span class="foot-brand">CraftOracle</span>
-  <p>Groq AI &amp; Modrinth API · Java Edition · Made for adventurers</p>
+  <p>NVIDIA NIM &amp; Modrinth API · Java Edition · Made for adventurers</p>
 </footer>
 
 <script>
@@ -660,11 +696,22 @@ const LS_MOD_H  = 'co_mod_history';
 const MAX_HIST  = 50;
 
 // ════════════════════════════════════════════
-//  CONFIG — load key from localStorage
+//  CONFIG — load key from localStorage (fallback: hosted NVIDIA NIM key)
 // ════════════════════════════════════════════
-let GKEY  = localStorage.getItem(LS_KEY) || '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';
-const GMODEL = 'llama-3.3-70b-versatile';
+let GKEY  = localStorage.getItem(LS_KEY) || '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';
+const GMODEL = 'z-ai/glm-5.2';
 let fxOn = true;
+
+// ════════════════════════════════════════════
+//  API STATUS PILL
+// ════════════════════════════════════════════
+function updateStatus(){
+  const el=document.getElementById('statusTxt');
+  if(!el)return;
+  const k=(GKEY||'').trim();
+  el.textContent = k ? (k.startsWith('nvapi-') ? 'NVIDIA NIM Active' : 'API Key Set') : 'No API Key';
+}
+updateStatus();
 
 // ════════════════════════════════════════════
 //  CURSOR + TRAIL
@@ -807,7 +854,7 @@ typeLoop();
 // ════════════════════════════════════════════
 const tipEl=document.getElementById('tip');
 function bindTip(scope){
-  document.querySelectorAll((scope?scope+' ':')+'[data-tip]').forEach(el=>{
+  document.querySelectorAll((scope?scope+' ':'')+'[data-tip]').forEach(el=>{
     el.addEventListener('mouseenter',()=>{tipEl.textContent=el.dataset.tip;tipEl.style.opacity='1';});
     el.addEventListener('mousemove',e=>{tipEl.style.left=(e.clientX+13)+'px';tipEl.style.top=(e.clientY-28)+'px';});
     el.addEventListener('mouseleave',()=>{tipEl.style.opacity='0';});
@@ -843,10 +890,12 @@ function endProgress(){clearInterval(pI);pb.style.width='100%';setTimeout(()=>{p
 // ════════════════════════════════════════════
 //  MODAL
 // ════════════════════════════════════════════
-function openModal(){document.getElementById('modalKey').value=GKEY;document.getElementById('apiModal').classList.add('open');}
+function openModal(){document.getElementById('modalKey').value=GKEY;document.getElementById('apiModal').classList.add('open');setTimeout(()=>document.getElementById('modalKey').focus(),60);}
 function closeModal(){document.getElementById('apiModal').classList.remove('open');}
-function saveKey(){const k=document.getElementById('modalKey').value.trim();if(k){GKEY=k;localStorage.setItem(LS_KEY,k);}closeModal();}
+function saveKey(){const k=document.getElementById('modalKey').value.trim();if(k){GKEY=k;localStorage.setItem(LS_KEY,k);updateStatus();}closeModal();}
 document.getElementById('apiModal').addEventListener('click',e=>{if(e.target===e.currentTarget)closeModal();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+document.getElementById('modalKey').addEventListener('keydown',e=>{if(e.key==='Enter')saveKey();});
 
 // ════════════════════════════════════════════
 //  NAV / PANELS
@@ -863,6 +912,7 @@ function switchPanel(name,btn){
   document.getElementById('panel-'+name).classList.add('active');
   btn.classList.add('active');
   if(name==='history') renderHistory();
+  if(name==='modpack') renderModpackList();
 }
 function cmdMode(mode,btn){
   document.querySelectorAll('.mb').forEach(b=>b.classList.remove('active'));
@@ -882,11 +932,17 @@ function qFix(cmd){document.getElementById('cmd-fix-input').value=cmd;cmdMode('f
 function qMod(txt){document.getElementById('mod-query').value=txt;aiMods();}
 
 // ════════════════════════════════════════════
-//  GROQ API
+//  AI API — NVIDIA NIM (OpenAI-compatible)
 // ════════════════════════════════════════════
-async function groq(prompt){
-  const res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GKEY},body:JSON.stringify({model:GMODEL,messages:[{role:'user',content:prompt}],temperature:.8,max_tokens:2800})});
-  if(!res.ok){const e=await res.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${res.status}`);}
+async function askAI(prompt){
+  const res=await fetch('https://integrate.api.nvidia.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+GKEY},body:JSON.stringify({model:GMODEL,messages:[{role:'user',content:prompt}],temperature:.8,max_tokens:2800})});
+  if(!res.ok){
+    const e=await res.json().catch(()=>({}));
+    const msg=e.error?.message||`HTTP ${res.status}`;
+    if(res.status===401||res.status===403) throw new Error('Invalid or expired API key — click ⚙ Key to update it. ('+msg+')');
+    if(res.status===429) throw new Error('Rate limited by the API — try again in a moment. ('+msg+')');
+    throw new Error(msg);
+  }
   const d=await res.json(); return d.choices?.[0]?.message?.content||'';
 }
 function pJSON(raw){return JSON.parse(raw.replace(/```json|```/g,'').trim());}
@@ -908,6 +964,12 @@ function bind(scope){
   document.querySelectorAll(scope+' .copy-trigger').forEach(btn=>{
     btn.addEventListener('click',e=>{e.stopPropagation();copy(decodeURIComponent(btn.dataset.copy||''),btn);});
   });
+  document.querySelectorAll(scope+' .add-pack-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();const mod=modRegistry[btn.dataset.slug];if(mod)toggleModInPack(mod);});
+  });
+  document.querySelectorAll(scope+' [data-rerun]').forEach(btn=>{
+    btn.addEventListener('click',e=>{e.stopPropagation();const id=btn.dataset.id,type=btn.dataset.rerun;if(type==='cmd')rerunCmd(id);else rerunMod(id);});
+  });
   document.querySelectorAll(scope+' .btn-mag').forEach(setupMag);
   bindTip(scope);
 }
@@ -917,7 +979,7 @@ function bind(scope){
 // ════════════════════════════════════════════
 function loading(id,msg){document.getElementById(id).innerHTML=`<div class="load-s"><svg class="o-spin" viewBox="0 0 44 44" fill="none"><circle cx="22" cy="22" r="18" stroke="url(#s1)" stroke-width="2" stroke-dasharray="28 56" stroke-linecap="round"/><circle cx="22" cy="22" r="11" stroke="url(#s2)" stroke-width="1.5" stroke-dasharray="13 26" stroke-linecap="round"/><circle cx="22" cy="22" r="4" fill="url(#s3)"/><defs><linearGradient id="s1" x1="0" y1="0" x2="44" y2="44"><stop stop-color="#a855f7"/><stop offset="1" stop-color="#22d3ee"/></linearGradient><linearGradient id="s2" x1="44" y1="0" x2="0" y2="44"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></linearGradient><radialGradient id="s3"><stop stop-color="#22d3ee"/><stop offset="1" stop-color="#a855f7"/></radialGradient></defs></svg><div class="load-msg">${msg||'Consulting the Oracle…'}</div></div>`;}
 function errBox(id,msg){document.getElementById(id).innerHTML=`<div class="err-box">⚠️ <span>${msg}</span></div>`;}
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function esc(s){return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function fmt(n){if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return(n/1e3).toFixed(1)+'K';return n+'';}
 function tsAgo(ts){const d=Date.now()-ts,m=Math.floor(d/60000),h=Math.floor(d/3600000),dy=Math.floor(d/86400000);if(m<1)return'just now';if(m<60)return m+'m ago';if(h<24)return h+'h ago';if(dy<30)return dy+'d ago';return new Date(ts).toLocaleDateString();}
 
@@ -1007,7 +1069,7 @@ function cmdHistCard(e){
         </div>
       </div>
       <div class="h-entry-acts">
-        <button class="rerun-btn btn-mag" onclick="rerunCmd(${JSON.stringify(e.id)})" data-tip="Re-run this query">↻ Re-run</button>
+        <button class="rerun-btn btn-mag" data-rerun="cmd" data-id="${e.id}" data-tip="Re-run this query">↻ Re-run</button>
         <button class="h-expand" onclick="toggleExpand('${e.id}')" id="hexp-${e.id}">▾ Show</button>
         <button class="del-btn btn-mag" onclick="deleteFromHistory('cmd','${e.id}')" data-tip="Delete this entry">✕</button>
       </div>
@@ -1016,9 +1078,9 @@ function cmdHistCard(e){
       <div class="h-preview">
         ${(e.results||[]).map((c,i)=>`
           <div style="margin-bottom:1rem;padding-bottom:1rem;${i<(e.results.length-1)?'border-bottom:1px solid var(--border)':''}">
-            <div class="rc-name" style="margin-bottom:.4rem;font-size:.8rem">${c.title||'Command '+(i+1)}</div>
+            <div class="rc-name" style="margin-bottom:.4rem;font-size:.8rem">${esc(c.title||'Command '+(i+1))}</div>
             <div class="cmd-code" id="hcc-${e.id}-${i}">${esc(c.command||'')}</div>
-            <p class="rc-desc sel" style="font-size:.76rem">${c.description||''}</p>
+            <p class="rc-desc sel" style="font-size:.76rem">${esc(c.description||'')}</p>
             <div class="rc-acts" style="margin-top:.5rem">
               <button class="copy-btn copy-trigger btn-mag" data-copy="${encodeURIComponent(c.command||'')}" data-tip="Copy command">📋 Copy</button>
               <button class="copy-btn btn-mag" onclick="selText('hcc-${e.id}-${i}')" data-tip="Select all">🖱️ Select</button>
@@ -1057,12 +1119,12 @@ function modHistCard(e){
           <span class="h-ts">${tsAgo(e.ts)}</span>
           <span class="h-rc">${e.results?.length||0} mod${(e.results?.length||0)!==1?'s':''}</span>
           ${e.ai?'<span class="tag tc" style="font-size:.6rem">AI</span>':''}
-          ${e.loader?`<span class="tag tp" style="font-size:.6rem">${e.loader}</span>`:''}
-          ${e.version?`<span class="tag tg" style="font-size:.6rem">${e.version}</span>`:''}
+          ${e.loader?`<span class="tag tp" style="font-size:.6rem">${esc(e.loader)}</span>`:''}
+          ${e.version?`<span class="tag tg" style="font-size:.6rem">${esc(e.version)}</span>`:''}
         </div>
       </div>
       <div class="h-entry-acts">
-        <button class="rerun-btn btn-mag" onclick="rerunMod(${JSON.stringify(e.id)})" data-tip="Re-run this search">↻ Re-run</button>
+        <button class="rerun-btn btn-mag" data-rerun="mod" data-id="${e.id}" data-tip="Re-run this search">↻ Re-run</button>
         <button class="h-expand" onclick="toggleExpand('${e.id}')" id="hexp-${e.id}">▾ Show</button>
         <button class="del-btn btn-mag" onclick="deleteFromHistory('mod','${e.id}')" data-tip="Delete this entry">✕</button>
       </div>
@@ -1070,16 +1132,16 @@ function modHistCard(e){
     <div class="h-body" id="hb-${e.id}">
       <div class="h-preview">
         ${(e.results||[]).map((m,i)=>{
-          const lo=(m.loaders||[]).map(l=>`<span class="tag tc">${l}</span>`).join('');
-          const ca=(m.categories||[]).slice(0,2).map(c=>`<span class="tag tp">${c}</span>`).join('');
+          const lo=(m.loaders||[]).map(l=>`<span class="tag tc">${esc(l)}</span>`).join('');
+          const ca=(m.categories||[]).slice(0,2).map(c=>`<span class="tag tp">${esc(c)}</span>`).join('');
           return`<div style="margin-bottom:.85rem;padding-bottom:.85rem;${i<Math.min(e.results.length-1,4)?'border-bottom:1px solid var(--border)':''}">
             <div class="rc-h" style="margin-bottom:.35rem">
               <div class="rc-meta">
-                <div class="rc-name sel">${m.title||'Unknown'}</div>
-                <div class="rc-by">by ${m.author||'Unknown'}</div>
+                <div class="rc-name sel">${esc(m.title||'Unknown')}</div>
+                <div class="rc-by">by ${esc(m.author||'Unknown')}</div>
               </div>
             </div>
-            <p class="rc-desc sel" style="font-size:.76rem;margin-bottom:.4rem">${(m.description||'').slice(0,140)}${m.description?.length>140?'…':''}</p>
+            <p class="rc-desc sel" style="font-size:.76rem;margin-bottom:.4rem">${esc((m.description||'').slice(0,140))}${m.description?.length>140?'…':''}</p>
             <div class="mod-stats" style="margin-bottom:.4rem">${m.downloads?`<span>⬇️ ${fmt(m.downloads)}</span>`:''} ${m.follows?`<span>❤️ ${fmt(m.follows)}</span>`:''}</div>
             <div class="rc-tags" style="margin-bottom:.4rem">${lo}${ca}</div>
             <div class="rc-acts">
@@ -1160,7 +1222,7 @@ async function genCommand(){
   let prompt, histEntry;
   if(free){
     const up=document.getElementById('cmd-prompt').value.trim();
-    if(!up){alert('Describe the command!');return;}
+    if(!up){showToast('Describe the command first!');return;}
     prompt=`You are a Minecraft Java Edition 1.21 command expert. User wants: "${up}"\nGenerate best command(s). Respond ONLY with raw JSON array:\n[{"title":"name","command":"/cmd","description":"what it does","usage":"when to use","tips":["t1","t2"]}]\nUp to 3 if needed. Valid Java 1.21 syntax only.`;
     histEntry={mode:'free',query:up};
   }else{
@@ -1170,7 +1232,7 @@ async function genCommand(){
   }
   loading('cmd-results','Conjuring your command…'); startProgress();
   try{
-    const raw=await groq(prompt); endProgress();
+    const raw=await askAI(prompt); endProgress();
     const cmds=pJSON(raw);
     renderCmds(cmds);
     addToHistory('cmd',{...histEntry,results:cmds});
@@ -1182,11 +1244,11 @@ function renderCmds(cmds){
   if(!cmds?.length){el.innerHTML='<div class="empty-s"><div class="ei">😔</div><p>No commands generated. Try rephrasing.</p></div>';return;}
   el.innerHTML=`<div class="results"><div class="r-head"><span class="r-label">⚡ Commands</span><span class="r-count">${cmds.length} result${cmds.length>1?'s':''}</span></div>
   ${cmds.map((c,i)=>`<div class="rc" style="animation-delay:${i*.08}s">
-    <div class="rc-h"><div class="rc-icon">⚡</div><div class="rc-meta"><div class="rc-name">${c.title||'Command '+(i+1)}</div></div></div>
+    <div class="rc-h"><div class="rc-icon">⚡</div><div class="rc-meta"><div class="rc-name">${esc(c.title||'Command '+(i+1))}</div></div></div>
     <div class="cmd-code" id="ccode-${i}">${esc(c.command||'')}</div>
-    <p class="rc-desc sel">${c.description||''}</p>
-    ${c.usage?`<p class="rc-desc" style="font-size:.72rem;color:var(--txd)">💡 ${c.usage}</p>`:''}
-    <div class="rc-tags">${(c.tips||[]).map(t=>`<span class="tag tc">${t}</span>`).join('')}</div>
+    <p class="rc-desc sel">${esc(c.description||'')}</p>
+    ${c.usage?`<p class="rc-desc" style="font-size:.72rem;color:var(--txd)">💡 ${esc(c.usage)}</p>`:''}
+    <div class="rc-tags">${(c.tips||[]).map(t=>`<span class="tag tc">${esc(t)}</span>`).join('')}</div>
     <div class="rc-acts">
       <button class="copy-btn copy-trigger btn-mag" data-copy="${encodeURIComponent(c.command||'')}" data-tip="Copy command">📋 Copy</button>
       <button class="copy-btn btn-mag" onclick="selText('ccode-${i}')" data-tip="Select all">🖱️ Select</button>
@@ -1200,7 +1262,7 @@ function renderCmds(cmds){
 // ════════════════════════════════════════════
 async function explainCommand(){
   const cmd=document.getElementById('cmd-explain-input').value.trim();
-  if(!cmd){alert('Paste a command to explain!');return;}
+  if(!cmd){showToast('Paste a command to explain first!');return;}
   loading('cmd-results','Reading the command runes…'); startProgress();
   const prompt=`You are a Minecraft Java Edition 1.21 command expert. Break down this command into every individual part and explain each one in plain English so a beginner can understand.
 Command: ${cmd}
@@ -1208,7 +1270,7 @@ Respond ONLY with raw JSON, no markdown:
 {"command":"the original command","summary":"one sentence overall summary of what this command does","parts":[{"token":"the exact token/argument from the command","explanation":"plain English explanation of what this part does and why"}],"notes":["optional important note or gotcha","another note if needed"]}
 Be thorough — every space-separated token, every flag, every argument gets its own part entry.`;
   try{
-    const raw=await groq(prompt); endProgress();
+    const raw=await askAI(prompt); endProgress();
     const data=pJSON(raw);
     renderExplain(data);
     addToHistory('cmd',{mode:'explain',query:'Explain: '+cmd.slice(0,60)+(cmd.length>60?'…':''),results:[{title:'Explanation',command:cmd,description:data.summary||''}]});
@@ -1222,7 +1284,7 @@ function renderExplain(data){
     <div class="r-head"><span class="r-label">🔍 Command Breakdown</span><span class="r-count">${(data.parts||[]).length} parts</span></div>
     <div class="rc">
       <div class="rc-h"><div class="rc-icon">🔍</div><div class="rc-meta"><div class="rc-name">What it does</div></div></div>
-      <p class="rc-desc sel" style="margin-bottom:.85rem">${data.summary||''}</p>
+      <p class="rc-desc sel" style="margin-bottom:.85rem">${esc(data.summary||'')}</p>
       <div class="cmd-code" id="explain-orig">${esc(data.command||'')}</div>
       <div class="rc-acts" style="margin-bottom:.9rem">
         <button class="copy-btn copy-trigger btn-mag" data-copy="${encodeURIComponent(data.command||'')}" data-tip="Copy command">📋 Copy</button>
@@ -1232,11 +1294,11 @@ function renderExplain(data){
         ${(data.parts||[]).map(p=>`
         <div class="explain-part">
           <div class="ep-token">${esc(p.token||'')}</div>
-          <div class="ep-desc">${p.explanation||''}</div>
+          <div class="ep-desc">${esc(p.explanation||'')}</div>
         </div>`).join('')}
       </div>
       ${notes.length?`<div style="margin-top:.9rem;padding:.7rem .9rem;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.14);border-radius:8px">
-        ${notes.map(n=>`<p style="font-size:.76rem;color:var(--txm);line-height:1.55;margin-bottom:.3rem">💡 ${n}</p>`).join('')}
+        ${notes.map(n=>`<p style="font-size:.76rem;color:var(--txm);line-height:1.55;margin-bottom:.3rem">💡 ${esc(n)}</p>`).join('')}
       </div>`:''}
     </div>
   </div>`;
@@ -1249,7 +1311,7 @@ function renderExplain(data){
 async function fixCommand(){
   const cmd=document.getElementById('cmd-fix-input').value.trim();
   const desc=document.getElementById('cmd-fix-desc').value.trim();
-  if(!cmd){alert('Paste a command to fix!');return;}
+  if(!cmd){showToast('Paste a command to fix first!');return;}
   loading('cmd-results','Diagnosing the command…'); startProgress();
   const prompt=`You are a Minecraft Java Edition 1.21 command expert and debugger. The user has a broken command. Identify every single issue and provide a fully corrected version.
 Broken command: ${cmd}
@@ -1258,7 +1320,7 @@ Respond ONLY with raw JSON, no markdown:
 {"original":"the broken command as-is","fixed":"/the fully corrected working command","issues":[{"problem":"exact thing that was wrong","fix":"what you changed and why"}],"explanation":"one sentence summarising all the changes made","tips":["optional extra tip","another tip if relevant"]}
 Be precise. If the command has multiple bugs, list every one. Only use valid Java Edition 1.21 syntax in the fixed version.`;
   try{
-    const raw=await groq(prompt); endProgress();
+    const raw=await askAI(prompt); endProgress();
     const data=pJSON(raw);
     renderFix(data);
     addToHistory('cmd',{mode:'fix',query:'Fix: '+cmd.slice(0,60)+(cmd.length>60?'…':''),results:[{title:'Fixed Command',command:data.fixed||'',description:data.explanation||''}]});
@@ -1272,7 +1334,7 @@ function renderFix(data){
     <div class="r-head"><span class="r-label">🔧 Command Fix</span><span class="r-count">${(data.issues||[]).length} issue${(data.issues||[]).length!==1?'s':''} found</span></div>
     <div class="rc">
       <div class="rc-h"><div class="rc-icon">🔧</div><div class="rc-meta"><div class="rc-name">Diagnosis</div></div></div>
-      <p class="rc-desc sel" style="margin-bottom:.9rem">${data.explanation||''}</p>
+      <p class="rc-desc sel" style="margin-bottom:.9rem">${esc(data.explanation||'')}</p>
 
       <div style="margin-bottom:.5rem">
         <label style="display:block;margin-bottom:.35rem;font-size:.64rem;color:rgba(239,68,68,.6);letter-spacing:.1em;text-transform:uppercase;font-weight:700">❌ Broken</label>
@@ -1295,11 +1357,11 @@ function renderFix(data){
             <div>
               <div style="display:flex;gap:.35rem;margin-bottom:.3rem;flex-wrap:wrap">
                 <span class="fi-label fi-prob">Problem</span>
-                <span class="fi-text">${is.problem||''}</span>
+                <span class="fi-text">${esc(is.problem||'')}</span>
               </div>
               <div style="display:flex;gap:.35rem;flex-wrap:wrap">
                 <span class="fi-label fi-fix">Fix</span>
-                <span class="fi-text">${is.fix||''}</span>
+                <span class="fi-text">${esc(is.fix||'')}</span>
               </div>
             </div>
           </div>`).join('')}
@@ -1307,7 +1369,7 @@ function renderFix(data){
       </div>`:''}
 
       ${tips.length?`<div style="padding:.7rem .9rem;background:rgba(168,85,247,.06);border:1px solid rgba(168,85,247,.14);border-radius:8px">
-        ${tips.map(t=>`<p style="font-size:.76rem;color:var(--txm);line-height:1.55;margin-bottom:.3rem">💡 ${t}</p>`).join('')}
+        ${tips.map(t=>`<p style="font-size:.76rem;color:var(--txm);line-height:1.55;margin-bottom:.3rem">💡 ${esc(t)}</p>`).join('')}
       </div>`:''}
     </div>
   </div>`;
@@ -1315,7 +1377,7 @@ function renderFix(data){
 }
 async function findMods(){
   const q=document.getElementById('mod-query').value.trim(),lo=document.getElementById('mod-loader').value,ca=document.getElementById('mod-cat').value,ve=document.getElementById('mod-ver').value,so=document.getElementById('mod-sort').value;
-  if(!q){alert('Describe the mod!');return;}
+  if(!q){showToast('Describe the mod first!');return;}
   loading('mod-results','Searching Modrinth…'); startProgress();
   const fa=[['project_type:mod']];if(lo)fa.push([`categories:${lo}`]);if(ca)fa.push([`categories:${ca}`]);if(ve)fa.push([`versions:${ve}`]);
   const params=new URLSearchParams({query:q,facets:JSON.stringify(fa),limit:'12',index:so||'relevance'});
@@ -1328,10 +1390,10 @@ async function findMods(){
 
 async function aiMods(){
   const q=document.getElementById('mod-query').value.trim(),lo=document.getElementById('mod-loader').value,ca=document.getElementById('mod-cat').value;
-  if(!q){alert('Describe the mod!');return;}
+  if(!q){showToast('Describe the mod first!');return;}
   loading('mod-results','Optimizing search with AI…'); startProgress();
   try{
-    const raw=await groq(`Minecraft player wants: "${q}". Loader: ${lo||'any'}. Category: ${ca||'any'}.\nGenerate 3 short Modrinth search terms (1-4 words). Respond ONLY with raw JSON array: ["t1","t2","t3"]`);
+    const raw=await askAI(`Minecraft player wants: "${q}". Loader: ${lo||'any'}. Category: ${ca||'any'}.\nGenerate 3 short Modrinth search terms (1-4 words). Respond ONLY with raw JSON array: ["t1","t2","t3"]`);
     const qs=pJSON(raw),fa=[['project_type:mod']];if(lo)fa.push([`categories:${lo}`]);if(ca)fa.push([`categories:${ca}`]);
     const params=new URLSearchParams({query:qs[0]||q,facets:JSON.stringify(fa),limit:'12',index:'relevance'});
     const r=await fetch(`https://api.modrinth.com/v2/search?${params}`),d=await r.json();
@@ -1344,22 +1406,22 @@ function renderMods(mods,ai=false,qs=[]){
   const el=document.getElementById('mod-results');
   if(!mods.length){el.innerHTML='<div class="empty-s"><div class="ei">😔</div><p>No mods found. Try different keywords.</p></div>';return;}
   el.innerHTML=`<div class="results"><div class="r-head"><span class="r-label">🧩 Results</span><span class="r-count">${mods.length} mods</span></div>
-  ${ai?`<div class="ai-badge">🔮 AI query: "${qs[0]||''}"</div>`:''}
+  ${ai?`<div class="ai-badge">🔮 AI query: "${esc(qs[0]||'')}"</div>`:''}
   ${mods.map((m,i)=>{
-    const lo=(m.loaders||[]).map(l=>`<span class="tag tc">${l}</span>`).join(''),ca=(m.categories||[]).slice(0,3).map(c=>`<span class="tag tp">${c}</span>`).join('');
+    const lo=(m.loaders||[]).map(l=>`<span class="tag tc">${esc(l)}</span>`).join(''),ca=(m.categories||[]).slice(0,3).map(c=>`<span class="tag tp">${esc(c)}</span>`).join('');
     const inPack=modpack.some(x=>x.slug===m.slug);
+    modRegistry[m.slug]={slug:m.slug,title:m.title,author:m.author,description:m.description,loaders:m.loaders,versions:m.versions,downloads:m.downloads,modrinthUrl:'https://modrinth.com/mod/'+m.slug};
     return`<div class="rc" style="animation-delay:${i*.06}s" id="modcard-${m.slug}">
       <div class="rc-h"><div class="rc-icon">🧩</div>
-        <div class="rc-meta"><div class="rc-name sel">${m.title||'Unknown'}</div><div class="rc-by">by ${m.author||'Unknown'}</div></div>
+        <div class="rc-meta"><div class="rc-name sel">${esc(m.title||'Unknown')}</div><div class="rc-by">by ${esc(m.author||'Unknown')}</div></div>
       </div>
-      <p class="rc-desc sel">${m.description||''}</p>
+      <p class="rc-desc sel">${esc(m.description||'')}</p>
       <div class="mod-stats">${m.downloads?`<span>⬇️ ${fmt(m.downloads)}</span>`:''} ${m.follows?`<span>❤️ ${fmt(m.follows)}</span>`:''} ${m.date_modified?`<span>🕐 ${new Date(m.date_modified).toLocaleDateString()}</span>`:''}</div>
       <div class="rc-tags">${lo}${ca}</div>
       <div class="rc-acts">
         <a href="https://modrinth.com/mod/${m.slug}" target="_blank" class="link-btn btn-mag">🌿 Modrinth ↗</a>
         <button class="copy-btn copy-trigger btn-mag" data-copy="${encodeURIComponent(m.title||'')}" data-tip="Copy name">📋 Name</button>
-        <button class="add-pack-btn btn-mag ${inPack?'added':''}" id="apb-${m.slug}"
-          onclick="toggleModInPack(${JSON.stringify({slug:m.slug,title:m.title,author:m.author,description:m.description,loaders:m.loaders,versions:m.versions,downloads:m.downloads,modrinthUrl:'https://modrinth.com/mod/'+m.slug})})"
+        <button class="add-pack-btn btn-mag ${inPack?'added':''}" id="apb-${m.slug}" data-slug="${m.slug}"
           data-tip="${inPack?'Remove from modpack':'Add to modpack'}">
           ${inPack?'✓ In Pack':'+ Pack'}
         </button>
@@ -1373,6 +1435,7 @@ function renderMods(mods,ai=false,qs=[]){
 // ════════════════════════════════════════════
 const LS_MODPACK = 'co_modpack';
 let modpack = [];
+const modRegistry = {};
 try { modpack = JSON.parse(localStorage.getItem(LS_MODPACK)||'[]'); } catch { modpack = []; }
 
 function saveModpack(){ localStorage.setItem(LS_MODPACK, JSON.stringify(modpack)); }
@@ -1435,7 +1498,7 @@ function renderModpackList(){
     list.innerHTML=`<div class="empty-s" style="padding:1.8rem 1.2rem">
       <div class="ei">📦</div>
       <p style="margin-bottom:.8rem">No mods added yet.<br>Search for mods and hit <strong style="color:var(--ok)">+ Pack</strong> to add them here.</p>
-      <button class="sc btn-mag" onclick="switchPanel('mods',document.querySelector('[onclick*=\\'switchPanel(\\'mods\\'\\']'))" style="cursor:none">🔍 Find Mods</button>
+      <button class="sc btn-mag" onclick="switchPanel('mods',document.getElementById('tab-mods'))" style="cursor:none">🔍 Find Mods</button>
     </div>`;
     return;
   }
@@ -1492,7 +1555,7 @@ Respond ONLY with raw JSON, no markdown fences:
 Only include arrays that are non-empty. Be specific and accurate based on your knowledge of these mods.`;
 
   try {
-    const raw = await groq(prompt); endProgress();
+    const raw = await askAI(prompt); endProgress();
     const data = pJSON(raw);
     renderCompatResult(data, packName, loader, version);
   } catch(e){ endProgress(); el.innerHTML=`<div class="err-box">⚠️ <span>Analysis failed: ${e.message}</span></div>`; }
@@ -1521,7 +1584,7 @@ function renderCompatResult(data, packName, loader, version){
       <span class="compat-score ${scoreClass}">${scoreLabel}</span>
     </div>
     <div class="compat-body">
-      ${data.summary?`<p style="font-size:.82rem;color:var(--txm);margin-bottom:1rem;line-height:1.6;padding-bottom:.9rem;border-bottom:1px solid var(--border)">${data.summary}</p>`:''}
+      ${data.summary?`<p style="font-size:.82rem;color:var(--txm);margin-bottom:1rem;line-height:1.6;padding-bottom:.9rem;border-bottom:1px solid var(--border)">${esc(data.summary)}</p>`:''}
 
       ${section('✓','Loader Compatibility',data.loaderIssues,'cs-err',i=>`
         <div class="compat-item ci-err">
@@ -1543,7 +1606,7 @@ function renderCompatResult(data, packName, loader, version){
           <span class="ci-icon">📥</span>
           <div class="ci-text">
             <div style="margin-bottom:.18rem"><span class="ci-mod">${esc(i.dependency)}</span> ${i.note?`— ${esc(i.note)}`:''}</div>
-            <div style="font-size:.72rem;color:var(--txd)">Required by: ${(i.requiredBy||[]).join(', ')}</div>
+            <div style="font-size:.72rem;color:var(--txd)">Required by: ${esc((i.requiredBy||[]).join(', '))}</div>
           </div>
         </div>`)}
 
@@ -1639,11 +1702,6 @@ function showToast(msg){
 // init modpack on load
 updateTray();
 if (document.getElementById('panel-modpack').classList.contains('active')) renderModpackList();
-// render when modpack panel is switched to
-const _origSwitchPanel = switchPanel;
-function switchPanel(name, btn){
-  _origSwitchPanel(name, btn);
-  if (name==='modpack') renderModpackList();
-}
+</script>
 </body>
 </html>
