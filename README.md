@@ -15,4 +15,3 @@ AI-powered Minecraft companion: generate, explain & fix Java Edition commands, f
 - AI: NVIDIA NIM API (`z-ai/glm-5.2`) via `integrate.api.nvidia.com`
 - Mods: Modrinth v2 API
 - Deploys automatically via GitHub Pages
-
